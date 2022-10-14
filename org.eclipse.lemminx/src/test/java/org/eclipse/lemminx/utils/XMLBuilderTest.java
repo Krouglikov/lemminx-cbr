@@ -12,15 +12,14 @@
  */
 package org.eclipse.lemminx.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * XML builder test.
- *
  */
 public class XMLBuilderTest {
 
@@ -52,4 +51,33 @@ public class XMLBuilderTest {
 				.startElement("head", false).selfCloseElement().linefeed().endElement("html").toString();
 		assertEquals("<html>\n\t<head />\n</html>", xml);
 	}
+
+	@Test
+	public void lastLineLengthZeroWhenEmpty() {
+		XMLBuilder xmlBuilder = new XMLBuilder(settings, "", "\n");
+		assertEquals(0, xmlBuilder.lastLineLength());
+	}
+
+	@Test
+	public void lastLineLengthZeroAfterLinebreak() {
+		XMLBuilder xmlBuilder = new XMLBuilder(settings, "", "\n");
+		xmlBuilder
+				.startElement("html", true).linefeed();
+		assertEquals(0, xmlBuilder.lastLineLength());
+	}
+
+	@Test
+	public void lastLineLengthNonZeroBeforeLinebreak() {
+		XMLBuilder xmlBuilder = new XMLBuilder(settings, "", "\n");
+		xmlBuilder.addContent("html");
+		assertEquals(4, xmlBuilder.lastLineLength());
+	}
+
+	@Test
+	public void lastLineLengthNonZeroAfterLinebreakAndOutput() {
+		XMLBuilder xmlBuilder = new XMLBuilder(settings, "", "\n");
+		xmlBuilder.addContent("html").linefeed().addContent("html");
+		assertEquals(4, xmlBuilder.lastLineLength());
+	}
+
 }

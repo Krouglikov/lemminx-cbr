@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="MPVFTS">
+    <shortdesc/>
+    <prolog>
+        <author type="creator">Ильсур Ганиев</author>
+        <critdates>
+            <!--Ильсур Ганиев-->
+            <revised modified="2022-10-05"/>
+        </critdates>
+    </prolog>
+    <refbody>
+        <table id="table_mpvfts" frame="all" rowsep="1" colsep="1" orient="land">
+            <title>Методики проверки выполнения функциональных требований в соответствии</title>
+            <tgroup cols="6">
+                <tbody>
+                    <row>
+                        <entry namest="col1" nameend="col4" align="center" valign="middle">
+                            <div>
+                                <section>dfdfd</section>
+                                <b>ИТ-решение – потребитель данных</b>
+                            </div>
+                        </entry>
+                        <entry>…</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+    </refbody>
+</reference>

@@ -12,27 +12,10 @@
  */
 package org.eclipse.lemminx.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.dom.DOMAttr;
-import org.eclipse.lemminx.dom.DOMCDATASection;
-import org.eclipse.lemminx.dom.DOMComment;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMDocumentType;
-import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.dom.DOMProcessingInstruction;
-import org.eclipse.lemminx.dom.DOMText;
-import org.eclipse.lemminx.dom.DTDAttlistDecl;
-import org.eclipse.lemminx.dom.DTDDeclNode;
-import org.eclipse.lemminx.dom.DTDDeclParameter;
+import org.eclipse.lemminx.dom.*;
+import org.eclipse.lemminx.extensions.cbr.XmlFormatterService;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -41,6 +24,12 @@ import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * XML formatter support.
@@ -822,9 +811,17 @@ class XMLFormatter {
 	 */
 	public List<? extends TextEdit> format(TextDocument textDocument, Range range, SharedSettings sharedSettings) {
 		try {
-			XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings,
-					getFormatterParticipants());
-			return formatterDocument.format();
+			if (XmlFormatterService.enabled()) {
+				return XmlFormatterService
+						.format(textDocument, range, sharedSettings, getFormatterParticipants());
+//				XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings,
+//						getFormatterParticipants());
+//				return formatterDocument.format();
+			} else {
+				XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings,
+						getFormatterParticipants());
+				return formatterDocument.format();
+			}
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "Formatting failed due to BadLocation", e);
 		}

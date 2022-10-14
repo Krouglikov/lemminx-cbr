@@ -12,12 +12,6 @@
  */
 package org.eclipse.lemminx.utils;
 
-import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
-
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DTDDeclNode;
@@ -25,9 +19,14 @@ import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.EnforceQuoteStyle;
 import org.eclipse.lemminx.settings.SharedSettings;
 
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.eclipse.lemminx.utils.StringUtils.normalizeSpace;
+
 /**
  * XML content builder utilities.
- *
  */
 public class XMLBuilder {
 
@@ -500,6 +499,17 @@ public class XMLBuilder {
 			i--;
 		}
 		return i > 0 && (this.xml.charAt(i) == '\r' || this.xml.charAt(i) == '\n');
+	}
+
+	public int lastLineLength() {
+		int length = this.xml.length();
+		int i = length - 1;
+		int count = 0;
+		while (i >= 0 && this.xml.charAt(i) != '\r' && this.xml.charAt(i) != '\n') {
+			count++;
+			i--;
+		}
+		return count;
 	}
 
 	private String replaceQuotesIfNeeded(String str) {
