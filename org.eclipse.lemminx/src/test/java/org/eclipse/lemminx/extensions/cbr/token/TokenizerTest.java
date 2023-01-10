@@ -72,6 +72,25 @@ class TokenizerTest {
     }
 
     @Test
+    public void trailingWhitespacesTokenized2() {
+        String line = "Lorem ipsum dolor sit amet, ";
+        List<Token> expected = Stream.<Token>builder()
+                .add(new Word("Lorem", false))
+                .add(new Whitespaces(" ", false))
+                .add(new Word("ipsum", false))
+                .add(new Whitespaces(" ", false))
+                .add(new Word("dolor", false))
+                .add(new Whitespaces(" ", false))
+                .add(new Word("sit", false))
+                .add(new Whitespaces(" ", false))
+                .add(new Word("amet,", false))
+                .add(new Whitespaces(" ", true))
+                .build().collect(Collectors.toList());
+        assertIterableEquals(expected, Tokenizer.tokenize(line, 0, "\r\n"));
+    }
+
+
+    @Test
     public void leadingLineBreakTokenized() {
         String line = "\r\nword\r\nword\r\n \tword\r\nword";
         List<Token> expected = Stream.<Token>builder()

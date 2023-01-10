@@ -7,7 +7,7 @@ import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
 import org.eclipse.lemminx.extensions.cbr.format.Predicates;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-public class AnotherNewLineAndIndentIfContextAllows extends ContextBoundFormat {
+public class AnotherNewLineAndIndentIfIndented extends ContextBoundFormat {
 
     @Override
     public void accept(DOMNode node, XMLBuilder xmlBuilder) {

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="ANALIZ_FUNKC_TREB" xml:lang="ru" product="AR">
+     <title>Анализ функциональных требований</title>  
+     <shortdesc/> 
+     <prolog>
+          <author type="creator">Ильсур Ганиев</author>  
+          <author type="contributor">Ильсур Ганиев</author> 
+          <copyright>
+               <copyryear year="2020"/>  
+               <copyrholder>РЦР "Екатеринбург"</copyrholder> 
+          </copyright>
+        
+          <critdates>
+               <created date="2020-09-23"/> 
+               <!--Ильсур Ганиев-->  
+               <revised modified="2022-03-11"/> 
+          </critdates>
+     </prolog>
+     <conbody>
+          <table id="tbl-tabl-ugo" conkeyref="appendix_1/tabl-ugo">          
+               <tgroup cols="1">
+                    <tbody>
+                         <row>
+                              <entry/>
+                         </row>
+                    </tbody>
+               </tgroup>
+          </table>
+          <p>[Данный раздел, как правило, содержит:</p> 
+          <ol>
+               <li> краткие выводы об осуществимости <b> и полноте функциональных требований, а также рекомендации по устранению недостатков;</li>
+               <li>укрупненную модель бизнес-процесса в нотации Archimate.]</li> 
+          </ol>
+          <example>
+               <p>По результатам анализа документов на рисунке ниже (<xref href="#ANALIZ_FUNKC_TREB/img-model_bizness_processa"/>) приведена укрупненная модель
+               целевого бизнес-процесса, на которой отражены...</p>
+          </example>
+          <section>
+            <!-- Рисунок: Пример укрупненной модели бизнес-процесса --> 
+            <fig id="img-model_bizness_processa" conkeyref="ar-img/model_bizness_processa"/>
+          </section>
+     </conbody>
+</concept>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="PREOB_SHABLONA_DOKUMENT" xml:lang="ru">
+    <title>Преобразование DITA-шаблона в DITA-документ Продукта</title>
+    <prolog>
+        <author type="creator">Ильсур Ганиев</author>
+        <critdates>
+            <created date="2023-01-23"/>
+        </critdates>
+    </prolog>
+    <conbody>
+        <p>Для преобразования <!--DITA-шаблона--><term keyref="term-dita_shablon/dita-shablon_imp"/>
+            в <!--DITA-документ--><term keyref="term-dita_dok"/>
+            <!--Продукта--><term keyref="term-product/product_imp"/> необходимо:</p>
+        <ol>
+            <li>внести сведения в информационные карты (<!--_Organ.ditamap--><ph
+                    conkeyref="dita_template/ph-map_organ"/>, <!--prodInfo.ditamap--><ph
+                    conkeyref="dita_template/ph-map_prodInfo"/>) и при необходимости удалить
+                неиспользуемые данные из этих карт;</li>
+            <li>создать топики, наполнить их контентом;</li>
+            <li>подключить топики в соответствующих картах разделов;</li>
+            <li>выполнить подключение топиков-справочников
+                    (<!--«Инструкция по работе в DITA»--><text conkeyref="doc-list/dita"/>) в
+                соответствующие информационные карты, например, <!--_KeyList.ditamap--><ph
+                    conkeyref="dita_template/ph-map_keyList"/>, которая служит картой ресурсов для
+                всех <!--Продуктов--><term keyref="term-product/product_rod"/> проекта;</li>
+            <li>при необходимости удалить главные карты неиспользуемых <!--DITA-документов--><term
+                    keyref="term-dita_dok/dita_dok_rodm"/> из корня каталога «products»;</li>
+            <li>при необходимости удалить каталоги <!--DITA-документов--><term
+                    keyref="term-dita_dok/dita_dok_rodm"/> из корня каталога «products»;</li>
+            <li>при необходимости удалить неиспользуемые файлы профилирования из каталога
+                    <!--«ditaval»--><ph conkeyref="strukt_proekta/t-ditaval_dir"/>.</li>
+        </ol>
+    </conbody>
+</concept>

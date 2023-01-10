@@ -30,11 +30,6 @@ public class Word implements Token {
     }
 
     @Override
-    public boolean isLastInLine() {
-        return isLastInLine;
-    }
-
-    @Override
     public String toString() {
         return content;
     }

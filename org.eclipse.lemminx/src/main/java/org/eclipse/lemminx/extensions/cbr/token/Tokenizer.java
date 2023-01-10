@@ -24,12 +24,12 @@ public final class Tokenizer {
             } else if (nextWhitespace == -1) {
                 //если пробела нет до самого конца строки
                 result.addAll(breakWord(line.substring(pos), true, lineBreak));
-                pos = maxPos;
+                pos = maxPos + 1;
             } else {
                 result.addAll(breakWord(line.substring(pos, nextWhitespace), false, lineBreak));
                 pos = nextWhitespace;
             }
-        } while (pos != maxPos);
+        } while (pos <= maxPos);
         return result;
     }
 

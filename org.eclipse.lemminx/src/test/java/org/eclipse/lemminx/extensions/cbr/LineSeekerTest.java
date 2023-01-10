@@ -15,8 +15,8 @@ class LineSeekerTest {
     public void testSeekLines() {
         String data = "1234567890 1234567890 1234567890 1234567890 1234567890";
         List<String> expected = Stream.<String>builder()
-                .add("1234567890 1234567890")
-                .add("1234567890 1234567890")
+                .add("1234567890 1234567890 ")
+                .add("1234567890 1234567890 ")
                 .add("1234567890")
                 .build().collect(Collectors.toList());
         List<String> lines = new LinkedList<>();

@@ -2,17 +2,39 @@ package org.eclipse.lemminx.extensions.cbr.format;
 
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.cbr.format.execution.base.SequenceFormat;
-import org.eclipse.lemminx.extensions.cbr.format.rules.*;
+import org.eclipse.lemminx.extensions.cbr.format.rules.children.IndentElementChildrenRule;
+import org.eclipse.lemminx.extensions.cbr.format.rules.children.PrintChildrenIfExistRule;
+import org.eclipse.lemminx.extensions.cbr.format.rules.children.UnindentElementChildrenRule;
+import org.eclipse.lemminx.extensions.cbr.format.rules.head.*;
+import org.eclipse.lemminx.extensions.cbr.format.rules.special.*;
+import org.eclipse.lemminx.extensions.cbr.format.rules.tail.DitaBlockElementBeforeTailRule;
+import org.eclipse.lemminx.extensions.cbr.format.rules.tail.FormatElementBeforeTailRule;
+import org.eclipse.lemminx.extensions.cbr.format.rules.tail.FormatElementTailRule;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FormatConfiguration {
 
-    private List<FormatRule> rules;
+    private static final FormatRuleGroup XML_ELEMENT_RULES = new FormatRuleGroup(
+            new NewLineBeforeHeadRule(),
+            new AnotherNewLineAndIndentBeforHeadRule(),
+            new FormatElementHeadRule(),
+            new IndentElementChildrenRule(),
+            new PrintChildrenIfExistRule(),
+            new UnindentElementChildrenRule(),
+            new FormatElementBeforeTailRule(),
+            new FormatElementTailRule()
+    );
 
-    private FormatConfiguration(FormatRule... rules) {
+    private final List<FormatRule> rules;
+
+    public FormatConfiguration(FormatRule... rules) {
         this.rules = new LinkedList<>(Arrays.asList(rules));
+    }
+
+    public FormatConfiguration(FormatRuleGroup... ruleGroups) {
+        this.rules = Arrays.stream(ruleGroups).flatMap(FormatRuleGroup::stream).collect(Collectors.toList());
     }
 
     /**
@@ -20,20 +42,13 @@ public class FormatConfiguration {
      */
     public static FormatConfiguration lemminx() {
         return new FormatConfiguration(
-                new PrintChildrenIfExist(),
-                new NewLine(),
-                new AnotherNewLineAndIndent(),
-                new FormatElementHeadRule(),
-                new IndentElementChildren(),
-                new UnindentElementChildren(),
-                new FormatElementBeforeTailRule(),
-                new FormatElementTailRule(),
-                new FormatCdataRule(),
-                new FormatCommentRule(),
-                new FormatDocumentTypeRule(),
-                new FormatPrologTypeRule(),
-                new FormatProcessingInstructionRule(),
-                new FormatTextRule()
+                XML_ELEMENT_RULES,
+                FormatRuleGroup.single(new FormatCdataRule()),
+                FormatRuleGroup.single(new FormatCommentRule()),
+                FormatRuleGroup.single(new FormatDocumentTypeRule()),
+                FormatRuleGroup.single(new FormatPrologTypeRule()),
+                FormatRuleGroup.single(new FormatProcessingInstructionRule()),
+                FormatRuleGroup.single(new FormatTextRule())
         );
     }
 
@@ -41,15 +56,24 @@ public class FormatConfiguration {
      * Форматирование с дополнительными правилами БР
      */
     public static FormatConfiguration cbr() {
-        // lemminx as a base
-        FormatConfiguration config = lemminx();
-        // cbr-specific overrides
-        config.rules.addAll(Arrays.asList(
-                new OverrideCbrText(),
-                new DitaNonBlockElements(),
-                new BlockDitaElementBeforeTail()
+        // lemminx as a base and cbr-specific overrides
+        return lemminx().cbrOverrides();
+    }
+
+    /**
+     * Правила форматирования, специфические для Банка России
+     */
+    public FormatConfiguration cbrOverrides() {
+        this.rules.addAll(Arrays.asList(
+                new BeforeCbrTextRule(),
+                new CbrTextRule(),
+                new DitaBeforeNonBlockElementRule(),
+                new DitaNonBlockElementHeadRule(),
+                new DitaNonBlockElementTailRule(),
+                new DitaBlockElementAfterHeadRule(),
+                new DitaBlockElementBeforeTailRule()
         ));
-        return config;
+        return this;
     }
 
     public Format configure(DOMNode node) {

@@ -11,20 +11,20 @@ public class SimpleFormatRule implements FormatRule {
 
     private final int kind;
 
-    private int sequence;
+    private final int sequence;
 
     private final Predicate<DOMNode> applicable;
 
     private final Function<DOMNode, Format> operation;
 
-    SimpleFormatRule(int kind, Predicate<DOMNode> applicable, Function<DOMNode, Format> operation) {
+    protected SimpleFormatRule(int kind, Predicate<DOMNode> applicable, Function<DOMNode, Format> operation) {
         this.kind = kind;
         this.sequence = kind; //todo
         this.applicable = applicable;
         this.operation = operation;
     }
 
-    SimpleFormatRule(RuleSequence sequence, Predicate<DOMNode> applicable, Function<DOMNode, Format> operation) {
+    protected SimpleFormatRule(FormattingSequence sequence, Predicate<DOMNode> applicable, Function<DOMNode, Format> operation) {
         this.kind = sequence.ordinal();
         this.sequence = sequence.ordinal();
         this.applicable = applicable;

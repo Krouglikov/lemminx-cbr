@@ -8,8 +8,8 @@ import org.eclipse.lemminx.utils.XMLBuilder;
 /**
  * Правило для блочного элемента ДИТА - перед хвостом ставим новую строку и отступ
  */
-public class NewLineAndIndentBeforeTail extends OverrideFormat {
-    public NewLineAndIndentBeforeTail() {
+public class DitaNewLineAndIndentBeforeBlockElementTail extends OverrideFormat {
+    public DitaNewLineAndIndentBeforeBlockElementTail() {
         super(FormatElementBeforeTail.class);
     }
 

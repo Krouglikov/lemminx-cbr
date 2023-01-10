@@ -7,8 +7,6 @@ public interface Token {
 
     String content();
 
-    boolean isLastInLine();
-
     default boolean isEmpty() {
         return length() == 0;
     }

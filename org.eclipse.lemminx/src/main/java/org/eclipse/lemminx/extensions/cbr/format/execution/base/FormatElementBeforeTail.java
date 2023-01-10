@@ -24,7 +24,6 @@ public class FormatElementBeforeTail extends ContextBoundFormat {
     }
 
     private void formatElement(DOMElement element, XMLBuilder xmlBuilder) throws BadLocationException {
-        String tag = element.getTagName();
         if (element.hasEndTag() && !element.hasStartTag()) {
             // bad element without start tag (ex: <\root>)
             return;
@@ -34,7 +33,7 @@ public class FormatElementBeforeTail extends ContextBoundFormat {
             case expand:
             case collapse:
                 break;
-            default:
+            default: //TODO упростить формат, вынести условия в правило
                 boolean hasElements = Predicates.hasNonTextChildren().test(element);
                 if (element.hasEndTag() && hasElements) {
                     xmlBuilder.linefeed();

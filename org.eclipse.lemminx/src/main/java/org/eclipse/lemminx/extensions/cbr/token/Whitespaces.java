@@ -15,6 +15,10 @@ public class Whitespaces implements Token {
         this.isLastInLine = isLastInLine;
     }
 
+    public Whitespaces(String content) {
+        this(content, false);
+    }
+
     @Override
     public TokenType type() {
         return TokenType.WHITESPACE;
@@ -28,11 +32,6 @@ public class Whitespaces implements Token {
     @Override
     public String content() {
         return content;
-    }
-
-    @Override
-    public boolean isLastInLine() {
-        return isLastInLine;
     }
 
     @Override

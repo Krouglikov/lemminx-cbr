@@ -26,11 +26,6 @@ public class LineBreak implements Token {
     }
 
     @Override
-    public boolean isLastInLine() {
-        return isLastInLine;
-    }
-
-    @Override
     public String toString() {
         return "<break>";
     }

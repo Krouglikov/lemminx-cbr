@@ -1,6 +1,9 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules;
 
-public enum RuleSequence {
+/**
+ * Последовательность этапов форматирования узла
+ */
+public enum FormattingSequence {
 
     BEFORE_HEAD,
     HEAD,

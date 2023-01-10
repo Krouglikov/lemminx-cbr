@@ -19,6 +19,11 @@ public class LineBuffer implements Consumer<Token> {
      */
     private boolean acceptLongLines = true;
 
+    /**
+     * Настройка - игнорировать ли пробел, пытающийся попасть в самое начало буфера
+     */
+    private boolean ignoreLeadingWhitespace = false;
+
     public LineBuffer(int maxLength) {
         this.maxLength = maxLength;
         this.full = maxLength <= 0;
@@ -28,6 +33,9 @@ public class LineBuffer implements Consumer<Token> {
         return full;
     }
 
+    /**
+     * Поместился ли последний токен в буфер
+     */
     public boolean isLastAccepted() {
         return lastAccepted;
     }
@@ -45,13 +53,19 @@ public class LineBuffer implements Consumer<Token> {
         return this;
     }
 
+    public LineBuffer ignoreLeadingSpace() {
+        ignoreLeadingWhitespace = true;
+        return this;
+    }
+
     @Override
     public void accept(Token token) {
         switch (token.type()) {
-            case WHITESPACE:
-                break; //TODO preserve whitespace
             case LINE_BREAK:
                 full = true;
+                break;
+            case WHITESPACE:
+                acceptWhitespace(token);
                 break;
             case WORD:
                 acceptWord(token);
@@ -65,12 +79,34 @@ public class LineBuffer implements Consumer<Token> {
             if (buffer.length() == 0 && acceptLongLines) {
                 putToken(token);
                 full = true;
+                lastAccepted = true;
             } else {
                 full = true;
                 lastAccepted = false;
             }
         } else {
             putToken(token);
+            lastAccepted = true;
+        }
+    }
+
+    private void acceptWhitespace(Token token) {
+        if (predictedBufferLength(token) >= maxLength) {
+            //если в буфере ничего не было, а пробелов слишком много, проигнорим их
+            if (buffer.length() == 0) {
+                lastAccepted = true;
+            } else {
+                full = true;
+                lastAccepted = true;
+            }
+        } else {
+            if (buffer.length() == 0 && ignoreLeadingWhitespace) {
+                // если буфер пуст, то игнорим лидирующие пробелы
+                lastAccepted = true;
+            } else {
+                putToken(token);
+                lastAccepted = true;
+            }
         }
     }
 
@@ -79,15 +115,11 @@ public class LineBuffer implements Consumer<Token> {
         if (bufferLength == 0) {
             return word.length();
         } else {
-            return bufferLength + 1 + word.length() + 1;
+            return bufferLength + word.length();
         }
     }
 
     private void putToken(Token token) {
-        // после крайнего слова надо добавить пробел
-        if (buffer.length() != 0) {
-            buffer.append(" "); // NB! replace all whitespace symbols with " "
-        }
         buffer.append(token.content());
     }
 

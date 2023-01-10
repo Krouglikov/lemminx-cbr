@@ -343,5 +343,59 @@ public class Context {
         return attributes.get(attributes.size() - 1);
     }
 
+    public void formatAttributes(DOMElement element, XMLBuilder xmlBuilder) throws BadLocationException {
+        List<DOMAttr> attributes = element.getAttributeNodes();
+        boolean isSingleAttribute = hasSingleAttributeInFullDoc(element);
+        int prevOffset = element.getStart();
+        for (DOMAttr attr : attributes) {
+            formatAttribute(attr, isSingleAttribute, prevOffset, xmlBuilder);
+            prevOffset = attr.getEnd();
+        }
+        XMLFormattingOptions options = sharedSettings.getFormattingSettings();
+        if ((options.getClosingBracketNewLine()
+                && options.isSplitAttributes())
+                && !isSingleAttribute) {
+            xmlBuilder.linefeed();
+            // Indent by tag + splitAttributesIndentSize to match with attribute indent level
+            int totalIndent = indentLevel + options.getSplitAttributesIndentSize();
+            xmlBuilder.indent(totalIndent);
+        }
+    }
+
+    private void formatAttribute(DOMAttr attr, boolean isSingleAttribute, int prevOffset, XMLBuilder xmlBuilder)
+            throws BadLocationException {
+        if (sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks()
+                && !isSameLine(prevOffset, attr.getStart())) {
+            xmlBuilder.linefeed();
+            xmlBuilder.indent(indentLevel + 1);
+            xmlBuilder.addSingleAttribute(attr, false, false);
+        } else if (isSingleAttribute) {
+            xmlBuilder.addSingleAttribute(attr);
+        } else {
+            xmlBuilder.addAttribute(attr, indentLevel);
+        }
+    }
+
+
+    /**
+     * Formats the start tag's closing bracket (>) according to
+     * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}
+     * <p>
+     * {@code XMLFormattingOptions#isPreserveAttrLineBreaks()}: If true, must add a
+     * newline + indent before the closing bracket if the last attribute of the
+     * element and the closing bracket are in different lines.
+     *
+     * @param element
+     * @throws BadLocationException
+     */
+    public void formatElementStartTagCloseBracket(DOMElement element, XMLBuilder xmlBuilder) throws BadLocationException {
+        if (sharedSettings.getFormattingSettings().isPreserveAttrLineBreaks() && element.hasAttributes()
+                && !isSameLine(getLastAttribute(element).getEnd(), element.getStartTagCloseOffset())) {
+            xmlBuilder.linefeed();
+            xmlBuilder.indent(indentLevel);
+        }
+        xmlBuilder.closeStartElement();
+    }
+
     //endregion
 }

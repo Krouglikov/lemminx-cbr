@@ -19,7 +19,7 @@ public final class Predicates {
             "amendments", "anchor", "anchorref", "appendices", "appendix",
             "backmatter", "bookid", "booklibrary", "booklists", "bookmeta", "bookowner", "bookrights", "booktitle",
             "chapter", "choices", "conbody", "concept", "context", "copyrfirst", "copyright", "copyrlast", "critdates",
-            "div",
+            "data", "div",
             "example",
             "fig", "frontmatter",
             "glossAlt", "glossarylist", "glossBody", "glossentry", "glossref",
@@ -30,8 +30,9 @@ public final class Predicates {
             "ol",
             "postreq", "prereq", "prolog", "prop",
             "refbody", "reference", "reltable", "row",
-            "section", "step", "steps",
+            "section", "sl", "step", "steps",
             "table", "task", "taskbody", "tgroup", "thead", "toc", "topichead", "topicmeta", "topicref", "topicsetref",
+            "ul",
             "val"
     );
 
@@ -98,14 +99,22 @@ public final class Predicates {
     /**
      * У текстового узла есть братья
      */
-    public static Predicate<DOMNode> textHasSibnlings() {
+    public static Predicate<DOMNode> textHasSiblings() {
         return node -> ((DOMText) node).hasSiblings();
     }
 
-    public static Predicate<DOMNode> needAnotherLineFeed() {
+    /**
+     * Узел с типичным поведением в роли потомка:
+     * <ul>
+     *     <li>Не является частью DTD-элемента;</li>
+     *     <li>Не является однострочным комментарием;</li>
+     *     <li>Не является текстом, а если и текст, то непустой и не единственный вложенный элемент.</li>
+     * </ul>
+     */
+    public static Predicate<DOMNode> isTypicalAsChild() {
         return isNotPartOfDTD()
                 .and(isNotOneLineComment())
-                .and(isNotText().or(isNotEmptyText().and(textHasSibnlings())));
+                .and(isNotText().or(isNotEmptyText().and(textHasSiblings())));
     }
 
     public static Predicate<DOMNode> startTagExistsInRangeDocument() {
@@ -132,6 +141,41 @@ public final class Predicates {
 
             return elemFromFullDoc.hasStartTag();
         };
+    }
+
+    /**
+     * У узла нет атрибутов
+     */
+    public static Predicate<DOMNode> hasNoAttributes() {
+        return node -> node.getAttributeNodes() == null || node.getAttributeNodes().isEmpty();
+    }
+
+    /**
+     * У узла нет потомков
+     */
+    public static Predicate<DOMNode> isChildFree() {
+        return node -> node.getChildren() == null || node.getChildren().isEmpty();
+    }
+
+    /**
+     * В единственном потомке текст
+     */
+    public static Predicate<DOMNode> isTextOnly() {
+        return node -> node.getChildren() != null && node.getChildren().size() == 1 && node.getChild(0).isText();
+    }
+
+    /**
+     * Узел является самозакрывающимся элементом (<elementName/>)
+     */
+    public static Predicate<DOMNode> isSelfClosed() {
+        return node -> node.isElement() && ((DOMElement) node).isSelfClosed();
+    }
+
+    /**
+     * Узел не является самозакрывающимся элементом (<elementName/>)
+     */
+    public static Predicate<DOMNode> isNotSelfClosed() {
+        return isSelfClosed().negate();
     }
 
     /**
@@ -165,12 +209,49 @@ public final class Predicates {
     }
 
     /**
-     * Вложен в блочный элемент ДИТА
+     * Вложен в блочный элемент ДИТА (непосредственно, на первом уровне вложенности)
      */
     public static Predicate<DOMNode> hasDitaBlockParent() {
-        return node ->
-                node.getParentNode() != null
-                        && isDitaBlockElement().test(node.getParentNode());
+        return node -> node.getParentNode() != null
+                && isDitaBlockElement().test(node.getParentNode());
+    }
+
+    /**
+     * Вложен в блочный элемент ДИТА (возможно на n-ном уровне вложенности)
+     */
+    public static Predicate<DOMNode> hasDitaBlockAncestor() {
+        return node -> {
+            DOMNode parentNode = node.getParentNode();
+            if (parentNode == null) {
+                return false;
+            } else if (isDitaBlockElement().test(parentNode)) {
+                return true;
+            } else {
+                return (hasDitaBlockAncestor().test(parentNode));
+            }
+        };
+    }
+
+    public static Predicate<DOMNode> isEmptyOrWhitespaceOnlyText() {
+        return isText().and(
+                nd -> isEmptyOrWhitespaceOnly(((DOMText) nd).getData()));
+    }
+
+    public static boolean isEmptyOrWhitespaceOnly(String s) {
+        String whitespaces = " \t\r\n";
+        if (s == null || s.isEmpty()) {
+            return true;
+        } else {
+            // как только найдем не-пробельный символ, сразу ясен итог
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                if (whitespaces.indexOf(c) == -1) {
+                    return false;
+                }
+            }
+            //если не нашли непробельных символов, то все
+            return true;
+        }
     }
 
 }

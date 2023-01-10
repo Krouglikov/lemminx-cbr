@@ -501,6 +501,11 @@ public class XMLBuilder {
 		return i > 0 && (this.xml.charAt(i) == '\r' || this.xml.charAt(i) == '\n');
 	}
 
+	public boolean isLastPositionWthitespace() {
+		char lastChar = xml.charAt(xml.length() - 1);
+		return lastChar == ' ' || lastChar == '\t';
+	}
+
 	public int lastLineLength() {
 		int length = this.xml.length();
 		int i = length - 1;

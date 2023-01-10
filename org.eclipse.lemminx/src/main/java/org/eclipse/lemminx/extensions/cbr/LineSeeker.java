@@ -5,8 +5,10 @@ import org.eclipse.lemminx.extensions.cbr.token.TokenType;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.eclipse.lemminx.extensions.cbr.token.LineTransform.*;
 import static org.eclipse.lemminx.extensions.cbr.token.Tokenizer.tokenize;
 
 /**
@@ -24,9 +26,11 @@ public class LineSeeker {
 
     private final int otherLinesOffset;
 
-    private final boolean preserveLeadingBreak;
+    private final Function<List<Token>, List<Token>> preProcess;
 
     private final boolean forceTrailingBreak;
+
+    private final boolean preserveLeadingWhitespace;
 
     private final Consumer<String> onNewLine;
 
@@ -39,10 +43,24 @@ public class LineSeeker {
         this.maxLineLength = settings.maxLineLength;
         this.firstLineOffset = settings.firstLineOffset;
         this.otherLinesOffset = settings.otherLinesOffset;
-        this.preserveLeadingBreak = settings.preserveLeadingBreak;
         this.forceTrailingBreak = settings.forceTrailingBreak;
+        this.preserveLeadingWhitespace = settings.preserveLeadingWhitespace;
         this.onNewLine = settings.onNewLine;
         this.onEnd = settings.onEnd;
+
+        if (settings.preserveLineBreaks)
+            this.preProcess = Function.<List<Token>>identity()
+//                    .andThen(removeLeadingWhitespace())
+                    .andThen(removeLeadingFormatting())
+                    .andThen(removeTrailingFormatting())
+                    .andThen(collapseWhitespaces());
+        else
+            this.preProcess = Function.<List<Token>>identity()
+                    //.andThen(removeLeadingWhitespace())
+                    .andThen(removeLeadingFormatting()) //todo preserveLeadingBreak?
+                    .andThen(removeTrailingFormatting())
+                    .andThen(removeLineBreaks(settings.preserveLeadingBreak, false))
+                    .andThen(collapseWhitespaces());
     }
 
     public static Settings setup() {
@@ -53,39 +71,52 @@ public class LineSeeker {
 
     void run(String line) {
         List<Token> tokens = tokenize(line, 0, lineBreak);
-        boolean leadingBreak = tokens.get(0).type() == TokenType.LINE_BREAK;
-        if (leadingBreak && !preserveLeadingBreak) {
-            tokens.remove(0);
-            leadingBreak = false;
+        if (preProcess != null) {
+            tokens = preProcess.apply(tokens);
         }
-        boolean trailingBreak = tokens.size() != 0 && tokens.get(tokens.size() - 1).type() == TokenType.LINE_BREAK;
-        Supplier<LineBuffer> firstLineBuffer = () -> new LineBuffer(this.maxLineLength - firstLineOffset).rejectLongLine();
-        Supplier<LineBuffer> restLineBuffers = () -> new LineBuffer(this.maxLineLength - otherLinesOffset);
-        Supplier<LineBuffer> newBuffer = new DifferingFirstValueGenerator<>(firstLineBuffer, restLineBuffers);
+        if (!tokens.isEmpty()) {
+            boolean leadingBreak = tokens.get(0).type() == TokenType.LINE_BREAK;
+            boolean trailingBreak = tokens.size() != 0 && tokens.get(tokens.size() - 1).type() == TokenType.LINE_BREAK;
+            Supplier<LineBuffer> newBuffer = differingFirstBuffer();
 
-        LineBuffer buffer = newBuffer.get();
-        // если почему-то первая строка сразу не лезет, то пойдем сразу к следующей
-        if (buffer.isFull() && !leadingBreak) {
-            raiseLineCompleteEvent(buffer.getContents());
-            buffer = newBuffer.get();
-        }
+            LineBuffer buffer = newBuffer.get();
+            // если почему-то первая строка сразу не лезет, то пойдем сразу к следующей
+            if (buffer.isFull() && !leadingBreak) {
+                lineComplete(buffer.getContents());
+                buffer = newBuffer.get();
+            }
 
-        for (Token token : tokens) {
-            buffer = acceptToken(newBuffer, buffer, token);
-        }
+            for (Token token : tokens) {
+                buffer = acceptToken(newBuffer, buffer, token);
+            }
 
-        // после обработки последнего токена буфер выбрасываем в последнюю строку
-        if (!buffer.isEmpty()) {
-            raiseLineCompleteEvent(buffer.getContents());
-        }
-        // если последним элементом строки был перевод строки, нужно его не потерять
-        // или нужно добавить если требуется обеспечить финальный
-        if (trailingBreak || forceTrailingBreak) {
-            raiseLineCompleteEvent("");
+            // после обработки последнего токена буфер выбрасываем в последнюю строку
+            if (!buffer.isEmpty()) {
+                lineComplete(buffer.getContents());
+            }
+            // если последним элементом строки был перевод строки, нужно его не потерять
+            // или нужно добавить если требуется обеспечить финальный
+            if (trailingBreak || forceTrailingBreak) {
+                lineComplete("");
+            }
         }
         if (onEnd != null) {
             onEnd.run();
         }
+    }
+
+    private DifferingFirstValueGenerator<LineBuffer> differingFirstBuffer() {
+        Supplier<LineBuffer> firstBuffer;
+        if (preserveLeadingWhitespace) {
+            firstBuffer = () -> new LineBuffer(this.maxLineLength - firstLineOffset).rejectLongLine();
+        } else {
+            firstBuffer = () -> new LineBuffer(this.maxLineLength - firstLineOffset)
+                    .rejectLongLine().ignoreLeadingSpace();
+        }
+        Supplier<LineBuffer> allOtherBuffers =
+                () -> new LineBuffer(this.maxLineLength - otherLinesOffset).ignoreLeadingSpace();
+        return new DifferingFirstValueGenerator<>(firstBuffer, allOtherBuffers);
+
     }
 
     private LineBuffer acceptToken(Supplier<LineBuffer> newBuffer, LineBuffer buffer, Token token) {
@@ -93,7 +124,7 @@ public class LineSeeker {
         boolean accepted = buffer.isLastAccepted();
         // если строка заполнена, переходим к следующей
         if (buffer.isFull()) {
-            raiseLineCompleteEvent(buffer.getContents());
+            lineComplete(buffer.getContents());
             buffer = newBuffer.get();
         }
         // если же последнее слово не влезло, то сразу пихаем его в новый буфер
@@ -102,13 +133,13 @@ public class LineSeeker {
         }
         //и сразу контролируем, не закончился ли новый буфер
         if (buffer.isFull()) {
-            raiseLineCompleteEvent(buffer.getContents());
+            lineComplete(buffer.getContents());
             buffer = newBuffer.get();
         }
         return buffer;
     }
 
-    private void raiseLineCompleteEvent(String contents) {
+    private void lineComplete(String contents) {
         if (onNewLine != null) {
             onNewLine.accept(contents);
         }
@@ -121,8 +152,10 @@ public class LineSeeker {
         private int maxLineLength = 100;
         private int firstLineOffset = 0;
         private int otherLinesOffset = 0;
+        private boolean preserveLineBreaks = false;
         private boolean preserveLeadingBreak = false;
         private boolean forceTrailingBreak = false;
+        private boolean preserveLeadingWhitespace;
         private Consumer<String> onNewLine;
         private Runnable onEnd;
 
@@ -146,6 +179,11 @@ public class LineSeeker {
             return this;
         }
 
+        public Settings preserveLineBreaks() {
+            preserveLineBreaks = true;
+            return this;
+        }
+
         public Settings preserveLeadingBreak() {
             preserveLeadingBreak = true;
             return this;
@@ -153,6 +191,11 @@ public class LineSeeker {
 
         public Settings forceTrailingBreak() {
             forceTrailingBreak = true;
+            return this;
+        }
+
+        public Settings preserveLeadingSpace(boolean val) {
+            preserveLeadingWhitespace = val;
             return this;
         }
 
