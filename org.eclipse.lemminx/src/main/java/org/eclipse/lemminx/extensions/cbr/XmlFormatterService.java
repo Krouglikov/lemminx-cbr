@@ -5,14 +5,16 @@ import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.extensions.cbr.format.FormatConfiguration;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 import org.eclipse.lemminx.extensions.cbr.format.execution.MainFormat;
+import org.eclipse.lemminx.extensions.cbr.sputils.SpUtils;
+import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.utils.LogToFile;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -20,17 +22,31 @@ import java.util.logging.Logger;
  * Реализует форматирование текстовых значений разбиением на строки не более наперед заданной длины
  */
 public class XmlFormatterService {
+    private static final Logger log = LogToFile.getInstance();
 
     //region Fields and constants
 
     public static final int DEFAULT_MAX_LINE_LENGTH = 100;
 
-
     private static final Logger LOGGER = Logger.getLogger(XmlFormatterService.class.getName());
     private static final XmlFormatterService INSTANCE;
     private static int maxLineLength = DEFAULT_MAX_LINE_LENGTH;
+
+    private static List<Path> dtdCatalogs = new LinkedList<>();
+    private static XMLLanguageService xmlLanguageService;
     private boolean enabled = false;
 
+    public static XMLLanguageService getXmlLanguageService() {
+        return xmlLanguageService;
+    }
+
+    public static List<Path> getDtdCatalogs() {
+        return dtdCatalogs;
+    }
+
+    public static void setXmlLanguageService(XMLLanguageService xmlLanguageService) {
+        XmlFormatterService.xmlLanguageService = xmlLanguageService;
+    }
     //endregion
 
     static {
@@ -64,6 +80,12 @@ public class XmlFormatterService {
             SharedSettings sharedSettings,
             Collection<IFormatterParticipant> formatterParticipants
     ) {
+        log.info("org.eclipse.lemminx.extensions.cbr.XmlFormatterService#format() is invoked");
+        boolean isValid = SpUtils.checkXmlValidWithDtd(textDocument);
+        log.info("SpUtils.checkIsValid() =  " + isValid);
+        if(!isValid) {
+            return Collections.emptyList();
+        }
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
         MainFormat
                 .configure(FormatConfiguration.cbr())
