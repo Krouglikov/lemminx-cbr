@@ -11,6 +11,7 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.LogToFile;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 
 
 public class SpUtils {
-    private static Logger log = LogToFile.getInstance();
+    private static final Logger log = LogToFile.getInstance();
 
     /**
      * Provides validation of an XML document using DTD schema
@@ -26,15 +27,17 @@ public class SpUtils {
      * @param document XML document to be validated
      */
 
-    public static boolean checkXmlValidWithDtd(TextDocument document) {
-        log.info("SpUtils#checkXmlValidWithDtd() started");
+    public static boolean checkXmlValidWithDtdForFormatting(TextDocument document) {
+        log.info("Starting validation");
         XMLLanguageService xmlLanguageService = XmlFormatterService.getXmlLanguageService() != null ?
                 XmlFormatterService.getXmlLanguageService() : new XMLLanguageService();
         URIResolverExtensionManager manager = new URIResolverExtensionManager();
 
-        String[] catalogs = {XmlFormatterService.getDtdCatalogs().get(0).toString()};
+        String dtdCatalog = (XmlFormatterService.getDtdCatalogs() != null
+                && !XmlFormatterService.getDtdCatalogs().isEmpty()) ?
+                XmlFormatterService.getDtdCatalogs().get(0).toString() : "";
         XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
-        catalogResolverExtension.setCatalogs(catalogs);
+        catalogResolverExtension.setCatalogs(new String[]{dtdCatalog});
         manager.registerResolver(catalogResolverExtension);
 
         DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(),
@@ -46,22 +49,28 @@ public class SpUtils {
         XMLValidationSettings problems = new XMLValidationSettings();
         settings.setValidation(problems);
 
-        log.info("Ready for calling xmlLanguageService.doDiagnostics() ");
-
         settings.getValidation().setResolveExternalEntities(true); // Important setting!
 
         List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
                 Collections.emptyMap(), () -> {
                 });
 
-        // TODO Put the analysis of the severity of the errors here...
+        int[] severeMessagesCount = new int[1];
+        StringBuilder sb = new StringBuilder("\nDiagnostics:\n");
+        actual.forEach(d -> {
+                    sb.append(d.getSeverity().toString())
+                            .append(": ")
+                            .append(d.getMessage());
+                    severeMessagesCount[0] += d.getSeverity().equals(DiagnosticSeverity.Error) ? 1 : 0;
+                }
+        );
 
-        if (!actual.isEmpty()) {
-            log.info("SpUtils#checkXmlValidWithDtd() finished and returned false");
-            return false;
-        } else {
-            log.info("SpUtils#checkXmlValidWithDtd() finished and returned true");
+        if (severeMessagesCount[0] == 0) {
+            log.info("\nValidation successful\n");
             return true;
+        } else {
+            log.info(sb + "\nValidation failed\n");
+            return false;
         }
     }
 }

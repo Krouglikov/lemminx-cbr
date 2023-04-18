@@ -6,7 +6,6 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -15,26 +14,30 @@ public final class Predicates {
     /**
      * Только элементы с такими именами будут форматироваться особым образом по правилам ДИТА
      */
-    public static final List<String> DITA_BLOCK_ELEMENTS = Arrays.asList(
-            "amendments", "anchor", "anchorref", "appendices", "appendix",
-            "backmatter", "bookid", "booklibrary", "booklists", "bookmeta", "bookowner", "bookrights", "booktitle",
-            "chapter", "choices", "conbody", "concept", "context", "copyrfirst", "copyright", "copyrlast", "critdates",
-            "data", "div",
-            "example",
-            "fig", "frontmatter",
-            "glossAlt", "glossarylist", "glossBody", "glossentry", "glossref",
-            "image", "isbn",
-            "keydef", "keywords",
-            "mainbooktitle", "maintainer", "map", "mapref",
-            "note",
-            "ol",
-            "postreq", "prereq", "prolog", "prop",
-            "refbody", "reference", "reltable", "row",
-            "section", "sl", "step", "steps",
-            "table", "task", "taskbody", "tgroup", "thead", "toc", "topichead", "topicmeta", "topicref", "topicsetref",
-            "ul",
-            "val"
-    );
+    private static List<String> DITA_BLOCK_ELEMENTS = null; /* Arrays.asList(
+            "amendments","anchor","anchorref","appendices","appendix",
+                    "backmatter","bookid","booklibrary","booklists","bookmeta","bookowner","bookrights","booktitle",
+                    "chapter","choices","conbody","concept","context","copyrfirst","copyright","copyrlast","critdates",
+                    "data","div",
+                    "example",
+                    "fig","frontmatter",
+                    "glossAlt","glossarylist","glossBody","glossentry","glossref",
+                    "image","isbn",
+                    "keydef","keywords",
+                    "mainbooktitle","maintainer","map","mapref",
+                    "note",
+                    "ol",
+                    "postreq","prereq","prolog","prop",
+                    "refbody","reference","reltable","row",
+                    "section","sl","step","steps",
+                    "table","task","taskbody","tgroup","thead","toc","topichead","topicmeta","topicref","topicsetref",
+                    "ul",
+                    "val"
+                    );
+*/
+    public static void setDitaBlockElements(final List<String> ditaBlockElements) {
+        DITA_BLOCK_ELEMENTS = ditaBlockElements;
+    }
 
     public static Predicate<DOMNode> isText() {
         return DOMNode::isText;

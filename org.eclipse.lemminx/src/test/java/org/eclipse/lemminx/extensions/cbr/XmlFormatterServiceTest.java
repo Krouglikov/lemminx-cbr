@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -21,6 +22,8 @@ class XmlFormatterServiceTest {
     @BeforeAll
     public static void setup() {
         XmlFormatterService.setMaxLineLength(MAX_TEXT_LENGTH);
+        XmlFormatterService.setDtdCatalogs(List.of(Path.of(
+                "c:\\Users\\SP\\.vscode\\extensions\\rcr-ekb.dita-vs-code-1.10.1\\schema\\v1.3\\catalog_dtd.xml")));
     }
 
     @Test

@@ -10,6 +10,7 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.utils.LogToFile;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -22,6 +23,8 @@ import java.util.logging.Logger;
  * Реализует форматирование текстовых значений разбиением на строки не более наперед заданной длины
  */
 public class XmlFormatterService {
+    private final static String FORMATTING_DISABLED_DUE_TO_ERRORS =
+            "Форматирование не может быть выполнено - документ содержит ошибки";
     private static final Logger log = LogToFile.getInstance();
 
     //region Fields and constants
@@ -42,6 +45,10 @@ public class XmlFormatterService {
 
     public static List<Path> getDtdCatalogs() {
         return dtdCatalogs;
+    }
+
+    public static void setDtdCatalogs(List<Path> dtdCatalogs) {
+        XmlFormatterService.dtdCatalogs = dtdCatalogs;
     }
 
     public static void setXmlLanguageService(XMLLanguageService xmlLanguageService) {
@@ -81,16 +88,16 @@ public class XmlFormatterService {
             Collection<IFormatterParticipant> formatterParticipants
     ) {
         log.info("org.eclipse.lemminx.extensions.cbr.XmlFormatterService#format() is invoked");
-        boolean isValid = SpUtils.checkXmlValidWithDtd(textDocument);
-        log.info("SpUtils.checkIsValid() =  " + isValid);
-        if(!isValid) {
+        if (!SpUtils.checkXmlValidWithDtdForFormatting(textDocument)) {
+            XmlFormatterService.getXmlLanguageService().getNotificationService()
+                    .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
             return Collections.emptyList();
         }
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
-        MainFormat
-                .configure(FormatConfiguration.cbr())
+        MainFormat.configure(FormatConfiguration.cbr())
                 .withContext(context)
                 .accept(context.rangeDomDocument, context.xmlBuilder);
+
         List<? extends TextEdit> textEdits;
         try {
             textEdits = context.getFormatTextEdit();
