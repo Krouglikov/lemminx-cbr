@@ -88,7 +88,8 @@ public class FormatConfiguration {
             return formats.get(0);
         } else {
             List<Format> result = resolveFormatOverrides(formats);
-            return new SequenceFormat(result);
+            SequenceFormat sequenceFormat = new SequenceFormat(result);
+            return sequenceFormat;
         }
     }
 

@@ -6,6 +6,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -14,7 +15,7 @@ public final class Predicates {
     /**
      * Только элементы с такими именами будут форматироваться особым образом по правилам ДИТА
      */
-    private static List<String> DITA_BLOCK_ELEMENTS = null; /* Arrays.asList(
+    private static List<String> DITA_BLOCK_ELEMENTS = Arrays.asList(
             "amendments","anchor","anchorref","appendices","appendix",
                     "backmatter","bookid","booklibrary","booklists","bookmeta","bookowner","bookrights","booktitle",
                     "chapter","choices","conbody","concept","context","copyrfirst","copyright","copyrlast","critdates",
@@ -34,7 +35,7 @@ public final class Predicates {
                     "ul",
                     "val"
                     );
-*/
+
     public static void setDitaBlockElements(final List<String> ditaBlockElements) {
         DITA_BLOCK_ELEMENTS = ditaBlockElements;
     }

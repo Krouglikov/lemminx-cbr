@@ -37,6 +37,13 @@ class XmlFormatterServiceTest {
     }
 
     @Test
+    public void testExtraLineError() throws BadLocationException {
+        String unformatted = "<map><title>Title</title></map>";
+        String expected = "<map>\r\n  <title>Title</title>\r\n</map>";
+        assertFormat(unformatted, expected);
+    }
+
+    @Test
     public void testFormatUnpartableLong() throws BadLocationException {
         String unformatted = "<div>Lorem_ipsum_dolor_sit_amet,consectetur_adipiscing_elit.Integer_vel_nibh.</div>";
         String expected = "" +

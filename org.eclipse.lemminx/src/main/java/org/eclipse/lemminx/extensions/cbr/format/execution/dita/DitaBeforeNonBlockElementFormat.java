@@ -35,7 +35,7 @@ public class DitaBeforeNonBlockElementFormat extends OverrideFormat {
         DOMNode previousSibling = node.getPreviousSibling();
 
         // если прямо перед нами текстовый узел с голым форматированием, игнорируем его
-        if (isEmptyOrWhitespaceOnlyText().test(previousSibling)) {
+        if (previousSibling != null && isEmptyOrWhitespaceOnlyText().test(previousSibling)) {
             previousSibling = previousSibling.getPreviousSibling();
         }
 

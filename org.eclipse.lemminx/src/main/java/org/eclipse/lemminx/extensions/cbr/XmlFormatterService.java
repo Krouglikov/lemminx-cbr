@@ -88,11 +88,12 @@ public class XmlFormatterService {
             Collection<IFormatterParticipant> formatterParticipants
     ) {
         log.info("org.eclipse.lemminx.extensions.cbr.XmlFormatterService#format() is invoked");
-        if (!SpUtils.checkXmlValidWithDtdForFormatting(textDocument)) {
-            XmlFormatterService.getXmlLanguageService().getNotificationService()
-                    .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
-            return Collections.emptyList();
-        }
+//        if (!SpUtils.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
+//            if()
+//            XmlFormatterService.getXmlLanguageService().getNotificationService()
+//                    .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
+//            return Collections.emptyList();
+//        }
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
         MainFormat.configure(FormatConfiguration.cbr())
                 .withContext(context)
