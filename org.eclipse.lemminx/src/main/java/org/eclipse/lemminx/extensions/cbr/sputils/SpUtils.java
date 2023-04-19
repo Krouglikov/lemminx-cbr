@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-
 public class SpUtils {
     private static final Logger log = LogToFile.getInstance();
+    private static final Logger LOGGER = Logger.getLogger(SpUtils.class.getName());
 
     /**
      * Provides validation of an XML document using DTD schema
@@ -27,8 +27,9 @@ public class SpUtils {
      * @param document XML document to be validated
      */
 
-    public static boolean checkXmlValidWithDtdForFormatting(TextDocument document) {
+    public static boolean checkXmlValidWithDtdBeforeFormatting(TextDocument document) {
         log.info("Starting validation");
+        LOGGER.info("Starting validation - logging to the Lemminx default logger");
         XMLLanguageService xmlLanguageService = XmlFormatterService.getXmlLanguageService() != null ?
                 XmlFormatterService.getXmlLanguageService() : new XMLLanguageService();
         URIResolverExtensionManager manager = new URIResolverExtensionManager();
@@ -46,15 +47,17 @@ public class SpUtils {
 
         ContentModelSettings settings = new ContentModelSettings();
         settings.setUseCache(false);
-        XMLValidationSettings problems = new XMLValidationSettings();
-        settings.setValidation(problems);
+        settings.setValidation(new XMLValidationSettings());
 
-        settings.getValidation().setResolveExternalEntities(true); // Important setting!
+        settings.getValidation().setResolveExternalEntities(true); // The setting is important!
 
-        List<Diagnostic> actual = xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
-                Collections.emptyMap(), () -> {
-                });
+        return isNoSevereDiagnostics(
+                xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
+                        Collections.emptyMap(), () -> {
+                        }));
+    }
 
+    private static boolean isNoSevereDiagnostics(List<Diagnostic> actual) {
         int[] severeMessagesCount = new int[1];
         StringBuilder sb = new StringBuilder("\nDiagnostics:\n");
         actual.forEach(d -> {
@@ -64,12 +67,11 @@ public class SpUtils {
                     severeMessagesCount[0] += d.getSeverity().equals(DiagnosticSeverity.Error) ? 1 : 0;
                 }
         );
-
         if (severeMessagesCount[0] == 0) {
             log.info("\nValidation successful\n");
             return true;
         } else {
-            log.info(sb + "\nValidation failed\n");
+            log.info(sb + "\nValidation failed because of severe diagnostics\n");
             return false;
         }
     }

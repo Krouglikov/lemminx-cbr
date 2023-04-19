@@ -88,7 +88,7 @@ public class XmlFormatterService {
             Collection<IFormatterParticipant> formatterParticipants
     ) {
         log.info("org.eclipse.lemminx.extensions.cbr.XmlFormatterService#format() is invoked");
-        if (!SpUtils.checkXmlValidWithDtdForFormatting(textDocument)) {
+        if (!SpUtils.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
             XmlFormatterService.getXmlLanguageService().getNotificationService()
                     .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
             return Collections.emptyList();
