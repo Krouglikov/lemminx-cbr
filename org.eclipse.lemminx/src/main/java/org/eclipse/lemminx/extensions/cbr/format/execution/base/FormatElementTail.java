@@ -3,20 +3,22 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.base;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-public class FormatElementTail extends ContextBoundFormat {
+public class FormatElementTail extends NodeFormat {
 
-    public FormatElementTail() {
-        super();
+    public FormatElementTail(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
     }
 
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
+    public void doFormatting() {
         try {
-            formatElement((DOMElement) domNode, xmlBuilder);
+            formatElement((DOMElement) node, xmlBuilder);
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
         }

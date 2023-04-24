@@ -2,16 +2,15 @@ package org.eclipse.lemminx.extensions.cbr;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.extensions.cbr.format.FormatConfiguration;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormatConfiguration;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 import org.eclipse.lemminx.extensions.cbr.format.execution.MainFormat;
-import org.eclipse.lemminx.extensions.cbr.sputils.SpUtils;
+import org.eclipse.lemminx.extensions.cbr.utils.DitaValidator;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.logs.LogToFile;
+import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -89,14 +88,15 @@ public class CbrXMLFormatterDocument {
         log.info("CbrXMLFormatterDocument#format() is invoked");
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
 
-        if (!SpUtils.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
+        if (!DitaValidator.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
             sendValidationFailedNotification();
             return Collections.emptyList();
         }
 
-        MainFormat mainFormat = MainFormat.configure(FormatConfiguration.lemminx());
-        mainFormat.withContext(context);
-        mainFormat.accept(context.rangeDomDocument, context.xmlBuilder);
+        NodeFormatConfiguration nodeFormatConfiguration = new NodeFormatConfiguration();
+        nodeFormatConfiguration.setCtx(context);
+        MainFormat mainFormat = new MainFormat(nodeFormatConfiguration);
+        mainFormat.doFormatting();
 
         List<? extends TextEdit> textEdits;
         try {

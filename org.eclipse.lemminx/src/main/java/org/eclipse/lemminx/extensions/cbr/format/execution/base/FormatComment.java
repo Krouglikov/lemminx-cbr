@@ -2,17 +2,20 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.base;
 
 import org.eclipse.lemminx.dom.DOMComment;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-public class FormatComment extends ContextBoundFormat {
-    public FormatComment() {
-        super();
+public class FormatComment extends NodeFormat {
+
+    public FormatComment(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
     }
 
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        formatComment((DOMComment) domNode, xmlBuilder);
+    public void doFormatting() {
+        formatComment((DOMComment) node, xmlBuilder);
     }
 
     /**

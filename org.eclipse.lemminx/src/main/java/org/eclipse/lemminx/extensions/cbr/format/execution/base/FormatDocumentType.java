@@ -1,21 +1,24 @@
 package org.eclipse.lemminx.extensions.cbr.format.execution.base;
 
 import org.eclipse.lemminx.dom.*;
-import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
 import java.util.List;
 
 import static org.eclipse.lemminx.extensions.cbr.format.execution.base.FormatProlog.addPrologToXMLBuilder;
 
-public class FormatDocumentType extends ContextBoundFormat {
-    public FormatDocumentType() {
-        super();
+public class FormatDocumentType extends NodeFormat {
+
+    public FormatDocumentType(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
     }
 
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        formatDocumentType((DOMDocumentType) domNode, xmlBuilder);
+    public void doFormatting() {
+        formatDocumentType((DOMDocumentType) node, xmlBuilder);
     }
 
     /**

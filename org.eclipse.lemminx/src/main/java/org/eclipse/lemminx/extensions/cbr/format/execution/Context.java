@@ -3,7 +3,7 @@ package org.eclipse.lemminx.extensions.cbr.format.execution;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.*;
-import org.eclipse.lemminx.extensions.cbr.format.FormatConfiguration;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormatConfiguration;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
@@ -38,7 +38,7 @@ public class Context {
     //endregion
 
     // region additional
-    public FormatConfiguration formatConfiguration;
+    public NodeFormatConfiguration nodeFormatConfiguration;
 
     // todo remove?
     public XMLBuilder xmlBuilder; //todo remove

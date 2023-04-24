@@ -1,9 +1,10 @@
 package org.eclipse.lemminx.extensions.cbr.format.execution.base;
 
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
-import org.eclipse.lemminx.extensions.cbr.format.FormatConfiguration;
-import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormatConfiguration;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 
 import java.util.List;
 
@@ -12,18 +13,21 @@ import java.util.List;
  * Применяет заданное форматирование для вывода всех дочерних узлов узла.
  * Если дочерних узлов нет, ничего не делает.
  */
-public class ChildrenFormat extends ContextBoundFormat {
+public class ChildrenFormat extends NodeFormat {
+
+    public ChildrenFormat(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
+    }
 
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        FormatConfiguration formatConfiguration = ctx.formatConfiguration;
-        List<DOMNode> children = domNode.getChildren();
+    public void doFormatting() {
+        NodeFormatConfiguration nodeFormatConfiguration = ctx.nodeFormatConfiguration;
+        List<DOMNode> children = node.getChildren();
         children.forEach(child -> {
-                    formatConfiguration.getSequenceFormatForNode(child)
+                    nodeFormatConfiguration.getSequenceFormatForNode(child)
                             .doFormatting();
                 }
         );
     }
-
 
 }

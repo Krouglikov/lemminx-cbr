@@ -9,7 +9,7 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
-import org.eclipse.lemminx.logs.LogToFile;
+import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.eclipse.lsp4j.InitializeParams;
 
 import javax.annotation.Nonnull;

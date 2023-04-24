@@ -7,7 +7,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
-import org.eclipse.lemminx.logs.LogToFile;
+import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

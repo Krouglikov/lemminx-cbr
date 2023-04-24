@@ -3,38 +3,43 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.dita;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
-import org.eclipse.lemminx.extensions.cbr.LineSeeker;
-import org.eclipse.lemminx.extensions.cbr.format.Format;
+import org.eclipse.lemminx.extensions.cbr.utils.LineSeeker;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
 import org.eclipse.lemminx.extensions.cbr.format.LineWriter;
-import org.eclipse.lemminx.extensions.cbr.format.execution.OverrideFormat;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.execution.base.*;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-import java.util.stream.Stream;
-
 import static java.lang.System.lineSeparator;
 
-public class DitaContentsHeadFormat extends OverrideFormat {
-
-    @Override
-    public Stream<Class<? extends Format>> overrides() {
-        return Stream.of(
-                FormatElementHead.class,
-                IncreaseIndent.class,
-                DecreaseIndent.class,
-                FormatElementBeforeTail.class, FormatElementTail.class);
+public class DitaContentsHeadFormat extends NodeFormat {
+    public DitaContentsHeadFormat(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
+        priority = Priority.OVERRIDE;
     }
 
+//    @Override
+//    public Stream<Class<? extends Format>> overrides() {
+//        return Stream.of(
+//                FormatElementHead.class,
+//                IncreaseIndent.class,
+//                DecreaseIndent.class,
+//                FormatElementBeforeTail.class, FormatElementTail.class);
+//    }
+
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
+    public void doFormatting() {
         XMLBuilder xmlBuilder1 = new XMLBuilder(xmlBuilder.getSharedSettings(), "", "");
-        new FormatElementHead().withContext((Object) ctx).accept(domNode, xmlBuilder1);
+        FormatElementHead formatElementHead = new FormatElementHead(node, ctx, FormattingOrder.HEAD);
+        formatElementHead.setXmlBuilder(xmlBuilder1);
+        formatElementHead.doFormatting();
         String content = xmlBuilder1.toString();
 
         int indentLevel = ctx.indentLevel; //todo code duplication
         int blanks = indentLevel * ctx.sharedSettings.getFormattingSettings().getTabSize();
         LineWriter lineWriter = new LineWriter(xmlBuilder, indentLevel);
-        String delimiter = getDelimiter(domNode);
+        String delimiter = getDelimiter(node);
         int startPosition = xmlBuilder.lastLineLength();
 
         LineSeeker.setup()

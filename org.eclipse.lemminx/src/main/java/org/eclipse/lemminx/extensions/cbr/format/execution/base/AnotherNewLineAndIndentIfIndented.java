@@ -3,14 +3,19 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.base;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
 import org.eclipse.lemminx.extensions.cbr.format.Predicates;
-import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 
-public class AnotherNewLineAndIndentIfIndented extends ContextBoundFormat {
+public class AnotherNewLineAndIndentIfIndented extends NodeFormat {
+
+    public AnotherNewLineAndIndentIfIndented(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
+    }
 
     @Override
-    public void accept(DOMNode node, XMLBuilder xmlBuilder) {
+    public void doFormatting() {
         if (ctx.indentLevel > 0) {
             // add new line + indent
             if (!node.isChildOfOwnerDocument() || node.getPreviousNonTextSibling() != null) {

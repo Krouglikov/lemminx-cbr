@@ -1,22 +1,27 @@
 package org.eclipse.lemminx.extensions.cbr.format.execution.dita;
 
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.execution.OverrideFormat;
-import org.eclipse.lemminx.extensions.cbr.format.execution.base.AnotherNewLineAndIndentIfIndented;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isDitaBlockElement;
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isEmptyOrWhitespaceOnlyText;
 
-public class DitaBeforeTextFormat extends OverrideFormat {
-
-    public DitaBeforeTextFormat() {
-        super(AnotherNewLineAndIndentIfIndented.class);
+public class DitaBeforeTextFormat extends NodeFormat {
+    public DitaBeforeTextFormat(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
+        priority = Priority.OVERRIDE;
     }
 
+//    public DitaBeforeTextFormat() {
+//        super(AnotherNewLineAndIndentIfIndented.class);
+//    }
+
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        formatBeforeHead(domNode, xmlBuilder);
+    public void doFormatting() {
+        formatBeforeHead(node, xmlBuilder);
     }
 
     private void formatBeforeHead(DOMNode textNode, XMLBuilder xmlBuilder) {

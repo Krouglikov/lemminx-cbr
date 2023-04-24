@@ -1,4 +1,4 @@
-package org.eclipse.lemminx.extensions.cbr;
+package org.eclipse.lemminx.extensions.cbr.utils;
 
 import org.eclipse.lemminx.extensions.cbr.token.Token;
 import org.eclipse.lemminx.extensions.cbr.token.TokenType;

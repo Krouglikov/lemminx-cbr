@@ -1,4 +1,4 @@
-package org.eclipse.lemminx.logs;
+package org.eclipse.lemminx.extensions.cbr.utils;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;

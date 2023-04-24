@@ -1,4 +1,4 @@
-package org.eclipse.lemminx.extensions.cbr;
+package org.eclipse.lemminx.extensions.cbr.utils;
 
 import java.util.function.Supplier;
 

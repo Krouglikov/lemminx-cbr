@@ -1,4 +1,4 @@
-package org.eclipse.lemminx.extensions.cbr.sputils;
+package org.eclipse.lemminx.extensions.cbr.utils;
 
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -9,7 +9,6 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
-import org.eclipse.lemminx.logs.LogToFile;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 
@@ -17,9 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class SpUtils {
+public class DitaValidator {
     private static final Logger log = LogToFile.getInstance();
-    private static final Logger LOGGER = Logger.getLogger(SpUtils.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DitaValidator.class.getName());
 
     /**
      * Provides validation of an XML document using DTD schema

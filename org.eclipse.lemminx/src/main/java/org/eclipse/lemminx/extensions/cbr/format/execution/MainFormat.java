@@ -1,33 +1,21 @@
 package org.eclipse.lemminx.extensions.cbr.format.execution;
 
-import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
-import org.eclipse.lemminx.extensions.cbr.format.FormatConfiguration;
-import org.eclipse.lemminx.utils.XMLBuilder;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormatConfiguration;
 
-public class MainFormat extends ContextBoundFormat {
+public class MainFormat extends NodeFormat {
 
-    private final FormatConfiguration configuration;
+    private final NodeFormatConfiguration configuration;
 
-    private MainFormat(FormatConfiguration configuration) {
+    public MainFormat(NodeFormatConfiguration configuration) {
+        super(configuration.getCtx().rangeDomDocument, configuration.getCtx(), FormattingOrder.BEFORE_HEAD);
+        configuration.getCtx().nodeFormatConfiguration = configuration;
         this.configuration = configuration;
     }
 
-    public static MainFormat configure(FormatConfiguration configuration) {
-        return new MainFormat(configuration);
-    }
-
     @Override
-    public MainFormat withContext(Context ctx) {
-        ctx.formatConfiguration = this.configuration;
-        configuration.setCtx(ctx);
-        this.ctx = ctx;
-        return this;
-    }
-
-    @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        configuration.getSequenceFormatForNode(domNode)
+    public void doFormatting() {
+        configuration.getSequenceFormatForNode(node)
                 .doFormatting();
     }
 

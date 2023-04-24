@@ -2,25 +2,28 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.dita;
 
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMText;
-import org.eclipse.lemminx.extensions.cbr.LineSeeker;
+import org.eclipse.lemminx.extensions.cbr.utils.LineSeeker;
 import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
 import org.eclipse.lemminx.extensions.cbr.format.LineWriter;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
-import org.eclipse.lemminx.extensions.cbr.format.execution.OverrideFormat;
-import org.eclipse.lemminx.extensions.cbr.format.execution.base.FormatText;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-public class DitaTextFormat extends OverrideFormat {
-
-    public DitaTextFormat() {
-        super(FormatText.class);
+public class DitaTextFormat extends NodeFormat {
+    public DitaTextFormat(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
+        priority = Priority.OVERRIDE;
     }
+
+//    public DitaTextFormat() {
+//        super(FormatText.class);
+//    }
 
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        formatAsText(domNode, xmlBuilder);
+    public void doFormatting() {
+        formatAsText(node, xmlBuilder);
     }
-
 
     public void formatAsText(
             DOMNode textNode,

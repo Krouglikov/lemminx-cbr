@@ -1,13 +1,10 @@
 package org.eclipse.lemminx.extensions.cbr.format.execution.dita;
 
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.Format;
-import org.eclipse.lemminx.extensions.cbr.format.execution.OverrideFormat;
-import org.eclipse.lemminx.extensions.cbr.format.execution.base.AnotherNewLineAndIndentIfIndented;
-import org.eclipse.lemminx.extensions.cbr.format.execution.base.NewLineIfContextDemands;
+import org.eclipse.lemminx.extensions.cbr.format.NodeFormat;
+import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
-
-import java.util.stream.Stream;
 
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isDitaBlockElement;
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isEmptyOrWhitespaceOnlyText;
@@ -15,18 +12,22 @@ import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isEmptyOrWhit
 /**
  * Форматирование неблочного элемента внутри блочного (отделение элементов друг от друга)
  */
-public class DitaBeforeNonBlockElementFormat extends OverrideFormat {
-
-    @Override
-    public Stream<Class<? extends Format>> overrides() {
-        return Stream.of(
-                NewLineIfContextDemands.class,
-                AnotherNewLineAndIndentIfIndented.class);
+public class DitaBeforeNonBlockElementFormat extends NodeFormat {
+    public DitaBeforeNonBlockElementFormat(DOMNode node, Context ctx, FormattingOrder order) {
+        super(node, ctx, order);
+        priority = Priority.OVERRIDE;
     }
 
+//    @Override
+//    public Stream<Class<? extends Format>> overrides() {
+//        return Stream.of(
+//                NewLineIfContextDemands.class,
+//                AnotherNewLineAndIndentIfIndented.class);
+//    }
+
     @Override
-    public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        formatBeforeHead(domNode, xmlBuilder);
+    public void doFormatting() {
+        formatBeforeHead(node, xmlBuilder);
     }
 
 
