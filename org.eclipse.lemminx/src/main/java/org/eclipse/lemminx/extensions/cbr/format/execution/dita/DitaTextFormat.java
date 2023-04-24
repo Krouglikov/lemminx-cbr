@@ -3,7 +3,7 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.dita;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMText;
 import org.eclipse.lemminx.extensions.cbr.LineSeeker;
-import org.eclipse.lemminx.extensions.cbr.XmlFormatterService;
+import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
 import org.eclipse.lemminx.extensions.cbr.format.LineWriter;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 import org.eclipse.lemminx.extensions.cbr.format.execution.OverrideFormat;
@@ -34,7 +34,7 @@ public class DitaTextFormat extends OverrideFormat {
         boolean noSpaceBeforeText = !xmlBuilder.isLastPositionWthitespace();
         LineSeeker.setup()
                 .lineBreak(delimiter)
-                .maxLineLength(XmlFormatterService.getMaxLineLength())
+                .maxLineLength(CbrXMLFormatterDocument.getMaxLineLength())
                 .firstLineOffset(startPosition)
                 .preserveLeadingSpace(noSpaceBeforeText)
                 .otherLinesOffset(blanks)

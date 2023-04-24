@@ -9,26 +9,24 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
+import org.eclipse.lemminx.logs.LogToFile;
 import org.eclipse.lsp4j.InitializeParams;
 
 import javax.annotation.Nonnull;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Optional.ofNullable;
-import static org.eclipse.lemminx.extensions.cbr.XmlFormatterService.DEFAULT_MAX_LINE_LENGTH;
+import static org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument.DEFAULT_MAX_LINE_LENGTH;
 
 /**
- * Обслуживает настройку основного полезного класса {@link XmlFormatterService}
+ * Обслуживает настройку основного полезного класса {@link CbrXMLFormatterDocument}
  */
-public class XmlFormatterExtension implements IXMLExtension {
+public class CbrSettingsPlugin implements IXMLExtension {
 
     @Override
     public void start(InitializeParams params, XMLExtensionsRegistry registry) {
-        XmlFormatterService.setXmlLanguageService((XMLLanguageService) registry);
+        CbrXMLFormatterDocument.setXmlLanguageService((XMLLanguageService) registry);
         registry.registerComponent("CbrXmlFormatter");
     }
 
@@ -51,18 +49,17 @@ public class XmlFormatterExtension implements IXMLExtension {
     }
 
     private void readSettings(JsonObject map) {
+        LogToFile.getInstance().info("readSettings");
         if (map == null) return;
         int maxStringWidth = ofNullable(map.getAsJsonPrimitive("maxStringWidth"))
                 .map(JsonPrimitive::getAsInt).orElse(DEFAULT_MAX_LINE_LENGTH);
-        XmlFormatterService.setMaxLineLength(maxStringWidth);
+        CbrXMLFormatterDocument.setMaxLineLength(maxStringWidth);
 
         JsonArray catalogs = map.getAsJsonArray("catalogs");
-        Stream<Path> replacement =
-                StreamSupport.stream(catalogs.spliterator(), false).map(x -> Paths.get(x.getAsString()));
-
-        XmlFormatterService.getDtdCatalogs().clear();
-        XmlFormatterService.getDtdCatalogs().addAll(replacement.collect(Collectors.toList()));
-
+        CbrXMLFormatterDocument.setDtdCatalogs(
+                StreamSupport.stream(catalogs.spliterator(), false)
+                        .map(JsonElement::getAsString).toArray(String[]::new)
+        );
         overrideDitaBlockElementsFromSettingsJsonExtensionConfigurationFile(map);
     }
 

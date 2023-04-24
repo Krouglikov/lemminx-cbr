@@ -1,4 +1,4 @@
-package org.eclipse.lemminx.utils;
+package org.eclipse.lemminx.logs;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;
@@ -6,6 +6,8 @@ import java.util.logging.SimpleFormatter;
 
 public final class LogToFile {
     public static final String GAP = "\t\t\t\t\t\t\t\t\t\t\t\t\t";
+
+    public static int debuggingMode;
     private static final String LOG_PATH = "c:\\Java\\Logs\\";
     private static java.util.logging.Logger instance;
 

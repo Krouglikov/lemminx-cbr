@@ -18,10 +18,12 @@ public class ChildrenFormat extends ContextBoundFormat {
     public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
         FormatConfiguration formatConfiguration = ctx.formatConfiguration;
         List<DOMNode> children = domNode.getChildren();
-        children.forEach(child -> formatConfiguration
-                .configure(child)
-                .withContext(ctx)
-                .accept(child, xmlBuilder));
+        children.forEach(child -> {
+                    formatConfiguration.getSequenceFormatForNode(child)
+                            .doFormatting();
+                }
+        );
     }
+
 
 }

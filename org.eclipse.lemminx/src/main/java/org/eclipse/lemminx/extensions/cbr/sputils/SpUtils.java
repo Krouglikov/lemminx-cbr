@@ -3,13 +3,13 @@ package org.eclipse.lemminx.extensions.cbr.sputils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.extensions.cbr.XmlFormatterService;
+import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
-import org.eclipse.lemminx.utils.LogToFile;
+import org.eclipse.lemminx.logs.LogToFile;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 
@@ -30,31 +30,24 @@ public class SpUtils {
     public static boolean checkXmlValidWithDtdBeforeFormatting(TextDocument document) {
         log.info("Starting validation");
         LOGGER.info("Starting validation - logging to the Lemminx default logger");
-        XMLLanguageService xmlLanguageService = XmlFormatterService.getXmlLanguageService() != null ?
-                XmlFormatterService.getXmlLanguageService() : new XMLLanguageService();
-        URIResolverExtensionManager manager = new URIResolverExtensionManager();
-
-        String dtdCatalog = (XmlFormatterService.getDtdCatalogs() != null
-                && !XmlFormatterService.getDtdCatalogs().isEmpty()) ?
-                XmlFormatterService.getDtdCatalogs().get(0).toString() : "";
+        XMLLanguageService xmlLanguageService = CbrXMLFormatterDocument.getXmlLanguageService() != null ?
+                CbrXMLFormatterDocument.getXmlLanguageService() : new XMLLanguageService();
         XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
-        catalogResolverExtension.setCatalogs(new String[]{dtdCatalog});
+        catalogResolverExtension.setCatalogs(CbrXMLFormatterDocument.getDtdCatalogs());
+        URIResolverExtensionManager manager = new URIResolverExtensionManager();
         manager.registerResolver(catalogResolverExtension);
 
-        DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(),
-                document.getUri(), manager);
+        DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(), document.getUri(), manager);
         xmlLanguageService.setDocumentProvider(uri -> xmlDocument);
 
         ContentModelSettings settings = new ContentModelSettings();
         settings.setUseCache(false);
         settings.setValidation(new XMLValidationSettings());
-
         settings.getValidation().setResolveExternalEntities(true); // The setting is important!
 
-        return isNoSevereDiagnostics(
-                xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
-                        Collections.emptyMap(), () -> {
-                        }));
+        return isNoSevereDiagnostics(xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
+                Collections.emptyMap(), () -> {
+                }));
     }
 
     private static boolean isNoSevereDiagnostics(List<Diagnostic> actual) {

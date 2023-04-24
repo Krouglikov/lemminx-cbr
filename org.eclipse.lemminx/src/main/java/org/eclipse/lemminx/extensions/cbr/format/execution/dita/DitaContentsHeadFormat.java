@@ -2,8 +2,8 @@ package org.eclipse.lemminx.extensions.cbr.format.execution.dita;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
 import org.eclipse.lemminx.extensions.cbr.LineSeeker;
-import org.eclipse.lemminx.extensions.cbr.XmlFormatterService;
 import org.eclipse.lemminx.extensions.cbr.format.Format;
 import org.eclipse.lemminx.extensions.cbr.format.LineWriter;
 import org.eclipse.lemminx.extensions.cbr.format.execution.OverrideFormat;
@@ -39,7 +39,7 @@ public class DitaContentsHeadFormat extends OverrideFormat {
 
         LineSeeker.setup()
                 .lineBreak(delimiter)
-                .maxLineLength(XmlFormatterService.getMaxLineLength())
+                .maxLineLength(CbrXMLFormatterDocument.getMaxLineLength())
                 .firstLineOffset(startPosition)
                 .otherLinesOffset(blanks)
                 .onNewLine(lineWriter)

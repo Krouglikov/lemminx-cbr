@@ -1,7 +1,11 @@
 package org.eclipse.lemminx.extensions.cbr.format;
 
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
+import org.eclipse.lemminx.utils.XMLBuilder;
 
+import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 public abstract class ContextBoundFormat extends ContextBound implements Format {

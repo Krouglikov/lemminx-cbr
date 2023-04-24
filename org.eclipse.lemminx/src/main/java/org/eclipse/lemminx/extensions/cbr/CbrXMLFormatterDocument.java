@@ -9,55 +9,54 @@ import org.eclipse.lemminx.extensions.cbr.sputils.SpUtils;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.utils.LogToFile;
+import org.eclipse.lemminx.logs.LogToFile;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Logger;
 
-
 /**
- * Реализует форматирование текстовых значений разбиением на строки не более наперед заданной длины
+ * Replaces the original XMLFormatterDocument with Cbr-featured formatting implementation.
+ * Реализует форматирование текстовых значений разбиением на строки не более наперед заданной длины - just TODO
  */
-public class XmlFormatterService {
-    private final static String FORMATTING_DISABLED_DUE_TO_ERRORS =
-            "Форматирование не может быть выполнено - документ содержит ошибки";
-    private static final Logger log = LogToFile.getInstance();
+public class CbrXMLFormatterDocument {
 
     //region Fields and constants
+    private final static String FORMATTING_DISABLED_DUE_TO_ERRORS =
+            "Форматирование не может быть выполнено - документ содержит ошибки";
 
-    public static final int DEFAULT_MAX_LINE_LENGTH = 100;
+    public static final int DEFAULT_MAX_LINE_LENGTH = 101;
 
-    private static final Logger LOGGER = Logger.getLogger(XmlFormatterService.class.getName());
-    private static final XmlFormatterService INSTANCE;
+    private static final Logger log = LogToFile.getInstance();
+    private static final Logger LOGGER = Logger.getLogger(CbrXMLFormatterDocument.class.getName());
+    private static final CbrXMLFormatterDocument INSTANCE;
     private static int maxLineLength = DEFAULT_MAX_LINE_LENGTH;
 
-    private static List<Path> dtdCatalogs = new LinkedList<>();
+    private static String[] dtdCatalogs;
     private static XMLLanguageService xmlLanguageService;
     private boolean enabled = false;
+    //endregion
 
     public static XMLLanguageService getXmlLanguageService() {
         return xmlLanguageService;
     }
 
-    public static List<Path> getDtdCatalogs() {
+    public static void setXmlLanguageService(XMLLanguageService xmlLanguageService) {
+        CbrXMLFormatterDocument.xmlLanguageService = xmlLanguageService;
+    }
+
+    public static void setDtdCatalogs(String[] dtdCatalogs) {
+        CbrXMLFormatterDocument.dtdCatalogs = dtdCatalogs;
+    }
+
+    public static String[] getDtdCatalogs() {
         return dtdCatalogs;
     }
 
-    public static void setDtdCatalogs(List<Path> dtdCatalogs) {
-        XmlFormatterService.dtdCatalogs = dtdCatalogs;
-    }
-
-    public static void setXmlLanguageService(XMLLanguageService xmlLanguageService) {
-        XmlFormatterService.xmlLanguageService = xmlLanguageService;
-    }
-    //endregion
-
     static {
-        INSTANCE = new XmlFormatterService();
+        INSTANCE = new CbrXMLFormatterDocument();
         try {
             Properties properties = System.getProperties();
             String stringValue = (String) properties.getOrDefault("cbr.formatter.enabled", "true");
@@ -73,7 +72,7 @@ public class XmlFormatterService {
 
     public static void setMaxLineLength(int maxLineLength) {
         if (maxLineLength > 0) {
-            XmlFormatterService.maxLineLength = maxLineLength;
+            CbrXMLFormatterDocument.maxLineLength = maxLineLength;
         }
     }
 
@@ -89,14 +88,14 @@ public class XmlFormatterService {
     ) {
         log.info("org.eclipse.lemminx.extensions.cbr.XmlFormatterService#format() is invoked");
         if (!SpUtils.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
-            XmlFormatterService.getXmlLanguageService().getNotificationService()
+            CbrXMLFormatterDocument.getXmlLanguageService().getNotificationService()
                     .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
             return Collections.emptyList();
         }
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
-        MainFormat.configure(FormatConfiguration.cbr())
-                .withContext(context)
-                .accept(context.rangeDomDocument, context.xmlBuilder);
+        MainFormat mainFormat = MainFormat.configure(FormatConfiguration.cbr());
+                mainFormat.withContext(context);
+                mainFormat.accept(context.rangeDomDocument, context.xmlBuilder);
 
         List<? extends TextEdit> textEdits;
         try {

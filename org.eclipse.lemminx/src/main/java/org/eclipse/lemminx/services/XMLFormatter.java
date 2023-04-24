@@ -15,13 +15,12 @@ package org.eclipse.lemminx.services;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.*;
-import org.eclipse.lemminx.extensions.cbr.XmlFormatterService;
-import org.eclipse.lemminx.extensions.cbr.sputils.SpUtils;
+import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
-import org.eclipse.lemminx.utils.LogToFile;
+import org.eclipse.lemminx.logs.LogToFile;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -811,8 +810,8 @@ class XMLFormatter {
         // ?????
         log.info("XMLFormatter#format() is invoked");
         try {
-            if (XmlFormatterService.enabled()) {
-                return XmlFormatterService
+            if (CbrXMLFormatterDocument.enabled()) {
+                return CbrXMLFormatterDocument
                         .format(textDocument, range, sharedSettings, getFormatterParticipants());
 //				XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings,
 //						getFormatterParticipants());

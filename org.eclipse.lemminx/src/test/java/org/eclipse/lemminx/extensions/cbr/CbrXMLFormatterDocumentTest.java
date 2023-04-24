@@ -1,34 +1,85 @@
 package org.eclipse.lemminx.extensions.cbr;
 
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
+import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
+import org.eclipse.lemminx.logs.LogToFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import static org.eclipse.lemminx.XMLAssert.assertFormat;
 
 @Disabled
-class XmlFormatterServiceTest {
+class CbrXMLFormatterDocumentTest {
+    private final Logger log = LogToFile.getInstance();
 
     private final static int MAX_TEXT_LENGTH = 60;
 
+    public static final String LOREM_IPSUM_101 =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer malesuada lorem sapien, at eleifend";
+
     @BeforeAll
     public static void setup() {
-        XmlFormatterService.setMaxLineLength(MAX_TEXT_LENGTH);
-        XmlFormatterService.setDtdCatalogs(List.of(Path.of(
-                "c:\\Users\\SP\\.vscode\\extensions\\rcr-ekb.dita-vs-code-1.10.1\\schema\\v1.3\\catalog_dtd.xml")));
+        CbrXMLFormatterDocument.setMaxLineLength(MAX_TEXT_LENGTH);
+        CbrXMLFormatterDocument.setDtdCatalogs(new String[]{"c:\\Users\\pafol\\.vscode\\extensions\\rcr-ekb.dita-vs-code-1.10.1\\schema\\v1.3\\catalog_dtd.xml"});
+    }
+
+    @Test
+    public void testParseDTD() throws BadLocationException, IOException {
+//        Path path = XmlFormatterService.getDtdCatalogs().get(0);
+        Path path = Paths.get("C:\\Users\\pafol\\.vscode\\extensions\\rcr-ekb.dita-vs-code-1.10.1\\schema\\v1.3\\bookmap\\dtd\\bookmap.dtd");
+        String string = new String(Files.readAllBytes(path));
+
+        URIResolverExtensionManager manager = new URIResolverExtensionManager();
+        XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
+        catalogResolverExtension.setCatalogs(CbrXMLFormatterDocument.getDtdCatalogs());
+        manager.registerResolver(catalogResolverExtension);
+
+        TextDocument document = new TextDocument(string, "bookmap.dtd");
+        DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(),
+                document.getUri(), manager);
+
+        log.info("isDTD = " + xmlDocument.isDTD());
+        log.info("xmlDocument.isGenericDTDDecl()" + xmlDocument.isGenericDTDDecl());
+
+        List<DOMNode> children = xmlDocument.getChildren().get(0).getChildren();
+        children.forEach(child -> log.info("\nchild : " + child.getNodeName() +
+                " : " + child.getNodeValue()));
+
+    }
+
+
+    @Test
+    public void testFormatLongString() throws BadLocationException {
+        String unformatted = "<div>" + LOREM_IPSUM_101 + "</div>";
+        String expected ="<div>\r\n" +
+                "  XXXLorem ipsum dolor sit amet, consectetur adipiscing \r\n" +
+        "  elit. Integer malesuada lorem sapien, at eleifend\r\n"+
+                "</div>";
+        assertFormat(unformatted, expected);
+        LogToFile.debuggingMode = 1;
+        assertFormat(unformatted, expected);
     }
 
     @Test
     public void testFormatShort() throws BadLocationException {
-        String unformatted = "<div>short div</div>";
+        String unformatted = "<div>short <!-- Comment --> div</div>";
         String expected = "" +
                 "<div>\r\n" +
                 "  short div\r\n" +

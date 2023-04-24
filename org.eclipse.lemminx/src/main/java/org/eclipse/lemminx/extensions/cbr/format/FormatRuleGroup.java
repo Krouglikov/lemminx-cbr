@@ -15,8 +15,4 @@ public class FormatRuleGroup {
         return Arrays.stream(elements);
     }
 
-    public static FormatRuleGroup single(FormatRule rule) {
-        return new FormatRuleGroup(rule);
-    }
-
 }

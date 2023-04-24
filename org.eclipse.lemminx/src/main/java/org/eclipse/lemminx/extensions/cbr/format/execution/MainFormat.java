@@ -20,16 +20,15 @@ public class MainFormat extends ContextBoundFormat {
     @Override
     public MainFormat withContext(Context ctx) {
         ctx.formatConfiguration = this.configuration;
+        configuration.setCtx(ctx);
         this.ctx = ctx;
         return this;
     }
 
     @Override
     public void accept(DOMNode domNode, XMLBuilder xmlBuilder) {
-        configuration
-                .configure(domNode)
-                .withContext(ctx)
-                .accept(domNode, xmlBuilder);
+        configuration.getSequenceFormatForNode(domNode)
+                .doFormatting();
     }
 
 }
