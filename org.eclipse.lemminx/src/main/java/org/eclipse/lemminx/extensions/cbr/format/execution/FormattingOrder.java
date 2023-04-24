@@ -1,4 +1,4 @@
-package org.eclipse.lemminx.extensions.cbr.format.rules;
+package org.eclipse.lemminx.extensions.cbr.format.execution;
 
 /**
  * Последовательность этапов форматирования узла

@@ -94,7 +94,7 @@ public class CbrXMLFormatterDocument {
             return Collections.emptyList();
         }
 
-        MainFormat mainFormat = MainFormat.configure(FormatConfiguration.cbr());
+        MainFormat mainFormat = MainFormat.configure(FormatConfiguration.lemminx());
         mainFormat.withContext(context);
         mainFormat.accept(context.rangeDomDocument, context.xmlBuilder);
 

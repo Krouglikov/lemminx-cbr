@@ -4,16 +4,6 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 import org.eclipse.lemminx.extensions.cbr.format.execution.base.*;
 import org.eclipse.lemminx.extensions.cbr.format.execution.dita.*;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
-import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
-import org.eclipse.lemminx.extensions.cbr.format.rules.children.IndentElementChildrenRule;
-import org.eclipse.lemminx.extensions.cbr.format.rules.children.PrintChildrenIfExistRule;
-import org.eclipse.lemminx.extensions.cbr.format.rules.children.UnindentElementChildrenRule;
-import org.eclipse.lemminx.extensions.cbr.format.rules.head.*;
-import org.eclipse.lemminx.extensions.cbr.format.rules.special.*;
-import org.eclipse.lemminx.extensions.cbr.format.rules.tail.DitaBlockElementBeforeTailRule;
-import org.eclipse.lemminx.extensions.cbr.format.rules.tail.FormatElementBeforeTailRule;
-import org.eclipse.lemminx.extensions.cbr.format.rules.tail.FormatElementTailRule;
 import org.eclipse.lemminx.logs.LogToFile;
 
 import java.util.*;
@@ -22,29 +12,7 @@ import java.util.stream.Collectors;
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.*;
 
 public class FormatConfiguration {
-
-    private static final FormatRuleGroup XML_ELEMENT_RULES = new FormatRuleGroup(
-            new NewLineBeforeHeadRule(),
-            new AnotherNewLineAndIndentBeforeHeadRule(),
-            new FormatElementHeadRule(),
-            new IndentElementChildrenRule(),
-            new PrintChildrenIfExistRule(),
-            new UnindentElementChildrenRule(),
-            new FormatElementBeforeTailRule(),
-            new FormatElementTailRule()
-    );
-
-    private final List<FormatRule> rules;
-
     private Context ctx;
-
-    public FormatConfiguration(FormatRule... rules) {
-        this.rules = new LinkedList<>(Arrays.asList(rules));
-    }
-
-    public FormatConfiguration(FormatRuleGroup... ruleGroups) {
-        this.rules = Arrays.stream(ruleGroups).flatMap(FormatRuleGroup::stream).collect(Collectors.toList());
-    }
 
     public Context getCtx() {
         return ctx;
@@ -58,54 +26,12 @@ public class FormatConfiguration {
      * Базовое форматирование lemminx
      */
     public static FormatConfiguration lemminx() {
-        return new FormatConfiguration(
-                XML_ELEMENT_RULES,
-                new FormatRuleGroup(
-                        new FormatCdataRule(),
-                        new FormatCommentRule(),
-                        new FormatDocumentTypeRule(),
-                        new FormatPrologTypeRule(),
-                        new FormatProcessingInstructionRule(),
-                        new FormatTextRule()
-                )
-        );
-    }
-
-    /**
-     * Форматирование с дополнительными правилами БР
-     */
-    public static FormatConfiguration cbr() {
-        // lemminx as a base and cbr-specific overrides
-        return lemminx().cbrOverrides();
-    }
-
-    /**
-     * Правила форматирования, специфические для Банка России
-     */
-    public FormatConfiguration cbrOverrides() {
-        this.rules.addAll(Arrays.asList(
-                new BeforeCbrTextRule(),
-                new CbrTextRule(),
-                new DitaBeforeNonBlockElementRule(),
-                new DitaNonBlockElementHeadRule(),
-                new DitaNonBlockElementTailRule(),
-                new DitaBlockElementAfterHeadRule(),
-                new DitaBlockElementBeforeTailRule()
-        ));
-        return this;
+        return new FormatConfiguration();
     }
 
     public FormatSequence getSequenceFormatForNode(DOMNode node) {
         StringBuilder sb = new StringBuilder();
         String gap = Predicates.isDitaBlockElement().test(node) ? "    " : "        ";
-        rules.stream()
-                .filter(r -> r.applicable(node))
-                .sorted(Comparator.comparing(FormatRule::sequence))
-                .forEach(formatRule -> {
-                            sb.append("\n").append(gap).append(formatRule.getClass().getSimpleName());
-                            Format format = formatRule.apply(node);
-                        }
-                );
 
         LogToFile.getInstance().info("formatRules for node " + node.getNodeName() +
                 (Predicates.isDitaBlockElement().test(node) ? " (Block element)" : " (Non-block element)") + ":" + sb);

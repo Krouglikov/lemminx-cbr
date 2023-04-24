@@ -1,7 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format;
 
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
+import org.eclipse.lemminx.extensions.cbr.format.execution.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
 import java.util.function.BiConsumer;
