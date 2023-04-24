@@ -1,6 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules;
 
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.cbr.format.ContextBoundFormat;
 import org.eclipse.lemminx.extensions.cbr.format.Format;
 import org.eclipse.lemminx.extensions.cbr.format.FormatRule;
 
@@ -15,16 +16,18 @@ public class SimpleFormatRule implements FormatRule {
 
     private final Predicate<DOMNode> applicable;
 
-    private final Function<DOMNode, Format> operation;
+    private final Function<DOMNode, ContextBoundFormat> operation;
 
-    protected SimpleFormatRule(int kind, Predicate<DOMNode> applicable, Function<DOMNode, Format> operation) {
+    protected SimpleFormatRule(int kind, Predicate<DOMNode> applicable, Function<DOMNode,
+            ContextBoundFormat> operation) {
         this.kind = kind;
         this.sequence = kind; //todo
         this.applicable = applicable;
         this.operation = operation;
     }
 
-    protected SimpleFormatRule(FormattingSequence sequence, Predicate<DOMNode> applicable, Function<DOMNode, Format> operation) {
+    protected SimpleFormatRule(FormattingOrder sequence, Predicate<DOMNode> applicable,
+                               Function<DOMNode, ContextBoundFormat> operation) {
         this.kind = sequence.ordinal();
         this.sequence = sequence.ordinal();
         this.applicable = applicable;
@@ -47,7 +50,7 @@ public class SimpleFormatRule implements FormatRule {
     }
 
     @Override
-    public Format apply(DOMNode node) {
+    public ContextBoundFormat apply(DOMNode node) {
         return operation.apply(node);
     }
 }

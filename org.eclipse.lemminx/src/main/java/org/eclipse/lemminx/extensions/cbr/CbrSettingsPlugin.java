@@ -49,11 +49,10 @@ public class CbrSettingsPlugin implements IXMLExtension {
     }
 
     private void readSettings(JsonObject map) {
-        LogToFile.getInstance().info("readSettings");
         if (map == null) return;
-        int maxStringWidth = ofNullable(map.getAsJsonPrimitive("maxStringWidth"))
+        int maxLineLength = ofNullable(map.getAsJsonPrimitive("maxStringWidth")) // maxStingLength
                 .map(JsonPrimitive::getAsInt).orElse(DEFAULT_MAX_LINE_LENGTH);
-        CbrXMLFormatterDocument.setMaxLineLength(maxStringWidth);
+        CbrXMLFormatterDocument.setMaxLineLength(maxLineLength);
 
         JsonArray catalogs = map.getAsJsonArray("catalogs");
         CbrXMLFormatterDocument.setDtdCatalogs(
@@ -61,13 +60,15 @@ public class CbrSettingsPlugin implements IXMLExtension {
                         .map(JsonElement::getAsString).toArray(String[]::new)
         );
         overrideDitaBlockElementsFromSettingsJsonExtensionConfigurationFile(map);
+        LogToFile.getInstance().info("CBR settings have been loaded from settings.json");
+
     }
 
     /**
      * Overrides the List of Block Elements if definition of xml.format.blockElements is present in settings
      * String array in settings.json
      *
-     * @param jsonObject refers to settings.json content
+     * @param jsonObject contains settings.json
      */
     private void overrideDitaBlockElementsFromSettingsJsonExtensionConfigurationFile(@Nonnull JsonObject jsonObject) {
         ofNullable(jsonObject.getAsJsonObject("format"))

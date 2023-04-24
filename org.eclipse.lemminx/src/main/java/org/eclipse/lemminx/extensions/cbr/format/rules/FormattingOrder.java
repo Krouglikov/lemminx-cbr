@@ -3,7 +3,7 @@ package org.eclipse.lemminx.extensions.cbr.format.rules;
 /**
  * Последовательность этапов форматирования узла
  */
-public enum FormattingSequence {
+public enum FormattingOrder {
 
     BEFORE_HEAD,
     HEAD,
@@ -13,6 +13,7 @@ public enum FormattingSequence {
     AFTER_CHILDREN,
     BEFORE_TAIL,
     TAIL,
-    AFTER_TAIL
+    AFTER_TAIL,
+    UNDEFINED
 
 }

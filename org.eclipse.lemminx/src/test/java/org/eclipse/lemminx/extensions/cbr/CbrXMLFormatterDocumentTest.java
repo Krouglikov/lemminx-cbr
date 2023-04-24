@@ -68,9 +68,9 @@ class CbrXMLFormatterDocumentTest {
     @Test
     public void testFormatLongString() throws BadLocationException {
         String unformatted = "<div>" + LOREM_IPSUM_101 + "</div>";
-        String expected ="<div>\r\n" +
-                "  XXXLorem ipsum dolor sit amet, consectetur adipiscing \r\n" +
-        "  elit. Integer malesuada lorem sapien, at eleifend\r\n"+
+        String expected = "<div>\r\n" +
+                "  Lorem ipsum dolor sit amet, consectetur adipiscing elit. \r\n" +
+                "  Integer malesuada lorem sapien, at eleifend\r\n" +
                 "</div>";
         assertFormat(unformatted, expected);
         LogToFile.debuggingMode = 1;

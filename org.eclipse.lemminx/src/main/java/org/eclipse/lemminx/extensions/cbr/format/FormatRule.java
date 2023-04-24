@@ -20,6 +20,6 @@ public interface FormatRule {
     /**
      * Применение правила определяет формат узла
      */
-    Format apply(DOMNode node);  // Format apply(Format f);
+    ContextBoundFormat apply(DOMNode node);  // Format apply(Format f);
 
 }

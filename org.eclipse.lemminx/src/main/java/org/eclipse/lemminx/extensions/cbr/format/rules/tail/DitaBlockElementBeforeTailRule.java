@@ -1,7 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules.tail;
 
 import org.eclipse.lemminx.extensions.cbr.format.execution.dita.DitaNewLineAndIndentBeforeBlockElementTail;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingSequence;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
 
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isDitaBlockElement;
@@ -12,7 +12,7 @@ import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isNotSelfClos
  */
 public class DitaBlockElementBeforeTailRule extends SimpleFormatRule {
     public DitaBlockElementBeforeTailRule() {
-        super(FormattingSequence.BEFORE_TAIL,
+        super(FormattingOrder.BEFORE_TAIL,
                 isDitaBlockElement().and(isNotSelfClosed()),
                 node -> new DitaNewLineAndIndentBeforeBlockElementTail());
     }

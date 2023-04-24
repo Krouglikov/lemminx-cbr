@@ -1,7 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules.special;
 
 import org.eclipse.lemminx.extensions.cbr.format.execution.dita.DitaTextFormat;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingSequence;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
 
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.hasDitaBlockAncestor;
@@ -12,7 +12,7 @@ import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isText;
  */
 public class CbrTextRule extends SimpleFormatRule {
     public CbrTextRule() {
-        super(FormattingSequence.HEAD,
+        super(FormattingOrder.HEAD,
                 isText().and(hasDitaBlockAncestor()),
                 node -> new DitaTextFormat());
     }

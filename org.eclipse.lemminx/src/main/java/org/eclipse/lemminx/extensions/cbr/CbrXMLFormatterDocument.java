@@ -11,6 +11,7 @@ import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.logs.LogToFile;
 import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -84,18 +85,18 @@ public class CbrXMLFormatterDocument {
             TextDocument textDocument,
             Range range,
             SharedSettings sharedSettings,
-            Collection<IFormatterParticipant> formatterParticipants
-    ) {
-        log.info("org.eclipse.lemminx.extensions.cbr.XmlFormatterService#format() is invoked");
+            Collection<IFormatterParticipant> formatterParticipants) {
+        log.info("CbrXMLFormatterDocument#format() is invoked");
+        Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
+
         if (!SpUtils.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
-            CbrXMLFormatterDocument.getXmlLanguageService().getNotificationService()
-                    .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
+            sendValidationFailedNotification();
             return Collections.emptyList();
         }
-        Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
+
         MainFormat mainFormat = MainFormat.configure(FormatConfiguration.cbr());
-                mainFormat.withContext(context);
-                mainFormat.accept(context.rangeDomDocument, context.xmlBuilder);
+        mainFormat.withContext(context);
+        mainFormat.accept(context.rangeDomDocument, context.xmlBuilder);
 
         List<? extends TextEdit> textEdits;
         try {
@@ -104,6 +105,14 @@ public class CbrXMLFormatterDocument {
             throw new RuntimeException(e);
         }
         return textEdits;
+    }
+
+    private static void sendValidationFailedNotification() {
+        if (CbrXMLFormatterDocument.getXmlLanguageService() != null &&
+                CbrXMLFormatterDocument.getXmlLanguageService().getNotificationService() != null) {
+            CbrXMLFormatterDocument.getXmlLanguageService().getNotificationService()
+                    .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
+        }
     }
 
 }

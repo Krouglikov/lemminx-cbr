@@ -1,6 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format;
 
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
 import java.util.function.BiConsumer;
@@ -15,6 +16,8 @@ public interface Format extends BiConsumer<DOMNode, XMLBuilder> {
     Format withContext(Object context);
 
     Priority priority();
+
+    FormattingOrder order = FormattingOrder.UNDEFINED;
 
     Stream<Class<? extends Format>> overrides();
 

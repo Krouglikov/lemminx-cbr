@@ -1,7 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules.head;
 
 import org.eclipse.lemminx.extensions.cbr.format.execution.dita.DitaNewLineAndIndentAfterBlockElementHead;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingSequence;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
 
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isDitaBlockElement;
@@ -12,7 +12,7 @@ import static org.eclipse.lemminx.extensions.cbr.format.Predicates.isNotSelfClos
  */
 public class DitaBlockElementAfterHeadRule extends SimpleFormatRule {
     public DitaBlockElementAfterHeadRule() {
-        super(FormattingSequence.AFTER_HEAD,
+        super(FormattingOrder.AFTER_HEAD,
                 isDitaBlockElement().and(isNotSelfClosed()),
                 node -> new DitaNewLineAndIndentAfterBlockElementHead());
     }

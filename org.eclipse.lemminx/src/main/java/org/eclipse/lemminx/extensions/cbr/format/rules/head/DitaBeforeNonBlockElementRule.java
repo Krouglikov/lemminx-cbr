@@ -1,7 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules.head;
 
 import org.eclipse.lemminx.extensions.cbr.format.execution.dita.DitaBeforeNonBlockElementFormat;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingSequence;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
 
 import static org.eclipse.lemminx.extensions.cbr.format.Predicates.*;
@@ -11,7 +11,7 @@ import static org.eclipse.lemminx.extensions.cbr.format.Predicates.*;
  */
 public class DitaBeforeNonBlockElementRule extends SimpleFormatRule {
     public DitaBeforeNonBlockElementRule() {
-        super(FormattingSequence.BEFORE_HEAD,
+        super(FormattingOrder.BEFORE_HEAD,
                 isNotOneLineComment() // todo remove?
                         .and(isNotComment())
                         .and(isNotText())

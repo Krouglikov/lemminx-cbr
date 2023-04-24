@@ -1,7 +1,7 @@
 package org.eclipse.lemminx.extensions.cbr.format.rules.children;
 
 import org.eclipse.lemminx.extensions.cbr.format.execution.base.ChildrenFormat;
-import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingSequence;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
 
 /**
@@ -9,7 +9,7 @@ import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
  */
 public class PrintChildrenIfExistRule extends SimpleFormatRule {
     public PrintChildrenIfExistRule() {
-        super(FormattingSequence.CHILDREN,
+        super(FormattingOrder.CHILDREN,
                 node -> node.hasChildNodes() && !node.isDoctype(), //todo children of Doctype as formatter
                 node -> new ChildrenFormat());
     }

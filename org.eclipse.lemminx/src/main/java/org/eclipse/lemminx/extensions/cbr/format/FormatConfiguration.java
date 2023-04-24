@@ -3,8 +3,9 @@ package org.eclipse.lemminx.extensions.cbr.format;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
 import org.eclipse.lemminx.extensions.cbr.format.execution.base.*;
-import org.eclipse.lemminx.extensions.cbr.format.execution.dita.DitaNewLineAndIndentAfterBlockElementHead;
-import org.eclipse.lemminx.extensions.cbr.format.execution.dita.DitaNewLineAndIndentBeforeBlockElementTail;
+import org.eclipse.lemminx.extensions.cbr.format.execution.dita.*;
+import org.eclipse.lemminx.extensions.cbr.format.rules.FormattingOrder;
+import org.eclipse.lemminx.extensions.cbr.format.rules.SimpleFormatRule;
 import org.eclipse.lemminx.extensions.cbr.format.rules.children.IndentElementChildrenRule;
 import org.eclipse.lemminx.extensions.cbr.format.rules.children.PrintChildrenIfExistRule;
 import org.eclipse.lemminx.extensions.cbr.format.rules.children.UnindentElementChildrenRule;
@@ -18,11 +19,13 @@ import org.eclipse.lemminx.logs.LogToFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.eclipse.lemminx.extensions.cbr.format.Predicates.*;
+
 public class FormatConfiguration {
 
     private static final FormatRuleGroup XML_ELEMENT_RULES = new FormatRuleGroup(
             new NewLineBeforeHeadRule(),
-            new AnotherNewLineAndIndentBeforHeadRule(),
+            new AnotherNewLineAndIndentBeforeHeadRule(),
             new FormatElementHeadRule(),
             new IndentElementChildrenRule(),
             new PrintChildrenIfExistRule(),
@@ -32,7 +35,6 @@ public class FormatConfiguration {
     );
 
     private final List<FormatRule> rules;
-
 
     private Context ctx;
 
@@ -88,83 +90,166 @@ public class FormatConfiguration {
                 new DitaNonBlockElementHeadRule(),
                 new DitaNonBlockElementTailRule(),
                 new DitaBlockElementAfterHeadRule(),
-                new DitaBlockElementBeforeTailRule(),
-                new SpTestRule()
+                new DitaBlockElementBeforeTailRule()
         ));
         return this;
     }
 
-    public SequenceFormat getSequenceFormatForNode(DOMNode node) {
-// ?????
+    public FormatSequence getSequenceFormatForNode(DOMNode node) {
         StringBuilder sb = new StringBuilder();
+        String gap = Predicates.isDitaBlockElement().test(node) ? "    " : "        ";
         rules.stream()
                 .filter(r -> r.applicable(node))
                 .sorted(Comparator.comparing(FormatRule::sequence))
                 .forEach(formatRule -> {
-                            sb.append("\n").append(formatRule.getClass().getSimpleName());
+                            sb.append("\n").append(gap).append(formatRule.getClass().getSimpleName());
                             Format format = formatRule.apply(node);
                         }
                 );
 
-        LogToFile.getInstance().info("formatRules for node " + node.getNodeName() + " :" + sb);
+        LogToFile.getInstance().info("formatRules for node " + node.getNodeName() +
+                (Predicates.isDitaBlockElement().test(node) ? " (Block element)" : " (Non-block element)") + ":" + sb);
+
+        List<ContextBoundFormat> formats = new ArrayList<>();
 
 
-        List<Format> formats = new ArrayList<>();
+        // Перед головой элемента вставляется дополнительный перенос строки и отступ если узел должен иметь отступ
+        // AnotherNewLineAndIndentBeforeHeadRule BEFORE_HEAD
+        if ((isNotDocumentNode().and(isTypicalAsChild())).test(node))
+            formats.add(new AnotherNewLineAndIndentIfIndented());
 
-        if (LogToFile.debuggingMode != 0 && Predicates.isDitaBlockElement().test(node)) {
-//            NewLineBeforeHeadRule
-//            AnotherNewLineAndIndentBeforHeadRule
-//            FormatElementHeadRule
-//            DitaBlockElementAfterHeadRule
-//            IndentElementChildrenRule
-//            PrintChildrenIfExistRule
-//            UnindentElementChildrenRule
-//            FormatElementBeforeTailRule
-//            DitaBlockElementBeforeTailRule
-//            FormatElementTailRule
-            formats = getFormatsForDiv();
-        } else {
-            formats = rules.stream()
-                    .filter(r -> r.applicable(node))
-                    .sorted(Comparator.comparing(FormatRule::sequence))
-                    .map(r -> r.apply(node))
-                    .collect(Collectors.toList());
-        }
+        // Форматирование текста внутри блочного элемента ДИТА (связки между соседними элементами)
+        // DitaBeforeNonBlockElementRule BEFORE_HEAD
+        if (isNotOneLineComment().and(isNotComment()).and(isNotText())
+                .and(isNotDitaBlockElement()).and(hasDitaBlockAncestor()).test(node))
+            formats.add(new DitaBeforeNonBlockElementFormat());
 
+        // Новая строка должна вставляться перед нетекстовым и непустым текстовым элементом
+        // NewLineBeforeHeadRule BEFORE_HEAD
+        if (isNotText().or(isNotEmptyText()).test(node))
+            formats.add(new NewLineIfContextDemands());
+
+        // Форматирование текста внутри блочного элемента ДИТА (связки между соседними элементами)
+        // BeforeCbrTextRule BEFORE_HEAD
+        if (isText().and(hasDitaBlockAncestor()).test(node))
+            formats.add(new DitaBeforeTextFormat());
+
+        // Особое правило для головы элементов в контексте ДИТА (внутри блочного элемента ДИТА)
+        // кроме комментариев, текста, не являющихся блочными элементами ДИТА
+        // DitaNonBlockElementHeadRule HEAD
+        if (isNotOneLineComment().and(isNotComment()).and(isNotText())
+                .and(isNotDitaBlockElement()).and(hasDitaBlockAncestor()).test(node))
+            formats.add(new DitaContentsHeadFormat());
+
+        // Формат головы элемента
+        // FormatElementHeadRule HEAD
+        if (node.isElement())
+            formats.add(new FormatElementHead());
+
+        // Форматирование текста внутри блочного элемента ДИТА по особым правилам (с учетом длины строки)
+        // CbrTextRule HEAD
+        if (isText().and(hasDitaBlockAncestor()).test(node))
+            formats.add(new DitaTextFormat());
+
+        // Узлы CDATA форматируются по собственным правилам
+        // FormatCdataRule 1
+        if (node.isCDATA())
+            formats.add(new FormatCData());
+
+        //Комментарии форматируются по своим собственным правилам
+        // FormatCommentRule 1
+        if (node.isComment())
+            formats.add(new FormatComment());
+
+        // Узлы DOCTYPE форматируются по своим собственным правилам.
+        // FormatDocumentTypeRule 1
+        if (node.isDoctype())
+            formats.add(new FormatDocumentType());
+
+        // Инструкции форматируются по собственным правилам
+        // FormatProcessingInstructionRule 1
+        if (node.isProcessingInstruction())
+            formats.add(new FormatProcessingInstruction());
+
+        // Пролог форматируется по собственным правилам
+        // FormatPrologTypeRule 1
+        if (node.isProlog())
+            formats.add(new FormatProlog());
+
+        // Форматирование текста
+        // FormatTextRule 1
+        if (isText().test(node))
+            formats.add(new FormatText());
+
+        //  Формат после головы элемента ДИТА
+        // DitaBlockElementAfterHeadRule AFTER_HEAD
+        if (isDitaBlockElement().and(isNotSelfClosed()).test(node))
+            formats.add(new DitaNewLineAndIndentAfterBlockElementHead());
+
+        // Перед вложенными элементами увеличивается отступ
+        // IndentElementChildrenRule BEFORE_CHILDREN
+        if (node.isElement())
+            formats.add(new IncreaseIndent());
+
+        // Если у узла есть дочерние, их нужно выводить.
+        // PrintChildrenIfExistRule CHILDREN
+        if (node.hasChildNodes() && !node.isDoctype())
+            formats.add(new ChildrenFormat());
+
+        // UnindentElementChildrenRule AFTER_CHILDREN
+        if (node.isElement())
+            formats.add(new DecreaseIndent());
+
+        // Перед хвостом блочного элемента ДИТА (кроме самозакрывающихся) -- перенос строки и отступ
+        // DitaBlockElementBeforeTailRule BEFORE_TAIL
+        if (isDitaBlockElement().and(isNotSelfClosed()).test(node))
+            formats.add(new DitaNewLineAndIndentBeforeBlockElementTail());
+
+        // Элементы перед хвостовиком
+        // FormatElementBeforeTailRule BEFORE_TAIL
+        if (node.isElement())
+            formats.add(new FormatElementBeforeTail());
+
+        // Формат хвоста элемента
+        // FormatElementTailRule TAIL
+        if (node.isElement())
+            formats.add(new FormatElementTail());
+
+        // Особое правило для хвоста элементов в контексте ДИТА (внутри блочного элемента ДИТА)
+        // кроме комментариев, текста, не являющихся блочными элементами ДИТА
+        // DitaNonBlockElementTailRule TAIL
+        if (isNotOneLineComment().and(isNotComment()).and(isNotText())
+                .and(isNotDitaBlockElement()).and(hasDitaBlockAncestor()).test(node))
+            formats.add(new DitaContentsTailFormat());
+/*
+        formats = rules.stream()
+                .filter(r -> r.applicable(node)).
+                sorted(Comparator.comparing(FormatRule::sequence))
+                .map(r -> r.apply(node))
+                .collect(Collectors.toList());
+*/
         if (formats.isEmpty()) {
-            throw new IllegalStateException("No rules applicable");
+            throw new IllegalStateException("No rules applicable. Node '" + node.getNodeName() +
+                    "' will be lost during formatting");
 //        } else if (formats.size() == 1) {
 //            return formats.get(0);
         } else {
-            List<Format> result = resolveFormatOverrides(formats);
-            return new SequenceFormat(node, ctx, result);
+            List<ContextBoundFormat> result = resolveFormatOverrides(formats); // Should be done?
+            return new FormatSequence(node, ctx, result);
         }
+
     }
 
-    private List<Format> resolveFormatOverrides(List<Format> original) {
-        ArrayList<Format> result = new ArrayList<>(original);
+    private List<ContextBoundFormat> resolveFormatOverrides(List<ContextBoundFormat> original) {
+        ArrayList<ContextBoundFormat> result = new ArrayList<>(original);
         original.stream()
                 .filter(format -> format.priority() == Format.Priority.OVERRIDE)
                 .flatMap(Format::overrides)
-                .forEach(overriden ->
-                        result.removeIf(format -> format.getClass() == overriden)
+                .forEach(overridden ->
+                        result.removeIf(format -> format.getClass() == overridden)
                 );
+
         return result;
     }
-
-    private List<Format> getFormatsForDiv() {
-        return List.of(
-                new NewLineIfContextDemands(),
-                new AnotherNewLineAndIndentIfIndented(),
-                new FormatElementHead(),
-                new DitaNewLineAndIndentAfterBlockElementHead(),
-                new IncreaseIndent(),
-                new ChildrenFormat(),
-                new DecreaseIndent(),
-                new FormatElementBeforeTail(),
-                new DitaNewLineAndIndentBeforeBlockElementTail(),
-                new FormatElementTail());
-    }
-
 
 }
