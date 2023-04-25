@@ -1,7 +1,9 @@
 package org.eclipse.lemminx.extensions.cbr.format.library;
 
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.cbr.format.Format;
 import org.eclipse.lemminx.extensions.cbr.format.FormatSequence;
+import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 
 public class MainFormat extends Format {
 
@@ -15,8 +17,7 @@ public class MainFormat extends Format {
 
     @Override
     public void doFormatting() {
-        formatSequence.getFormatListForNode(node)
-                .doFormatting();
+        formatSequence.doFormatting(node);
     }
 
 }

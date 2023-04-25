@@ -21,13 +21,8 @@ public class ChildrenFormat extends Format {
 
     @Override
     public void doFormatting() {
-        FormatSequence formatSequence = ctx.formatSequence;
         List<DOMNode> children = node.getChildren();
-        children.forEach(child -> {
-                    formatSequence.getFormatListForNode(child)
-                    .doFormatting();
-                }
-        );
+        children.forEach(ctx.formatSequence::doFormatting);
     }
 
 }

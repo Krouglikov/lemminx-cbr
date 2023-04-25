@@ -7,6 +7,7 @@ import org.eclipse.lemminx.extensions.cbr.format.Format;
 import org.eclipse.lemminx.extensions.cbr.format.library.Predicates;
 import org.eclipse.lemminx.extensions.cbr.format.library.Context;
 import org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder;
+import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 
 public class AnotherNewLineAndIndentIfIndented extends Format {
 

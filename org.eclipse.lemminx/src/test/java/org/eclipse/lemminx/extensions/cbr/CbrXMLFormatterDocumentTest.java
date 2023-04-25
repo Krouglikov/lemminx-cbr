@@ -73,7 +73,14 @@ class CbrXMLFormatterDocumentTest {
                 "  Integer malesuada lorem sapien, at eleifend\r\n" +
                 "</div>";
         assertFormat(unformatted, expected);
-        LogToFile.debuggingMode = 1;
+    }
+
+    @Test
+    public void testLineFeeds() throws BadLocationException {
+        String unformatted = "<title>Lorem</title><title>zzz</title>";
+        String expected = "<map>\r\n" +
+                "  <title>Lorem</title>\r\n" +
+                "</map>";
         assertFormat(unformatted, expected);
     }
 
