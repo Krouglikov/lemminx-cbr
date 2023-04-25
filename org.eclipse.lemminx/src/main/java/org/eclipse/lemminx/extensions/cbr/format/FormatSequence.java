@@ -29,26 +29,24 @@ public class FormatSequence {
         formats = new ArrayList<>();
 
         // Форматирование текста внутри блочного элемента ДИТА (связки между соседними элементами)
+        // BeforeCbrTextRule BEFORE_HEAD
+        if (isText().and(hasDitaBlockAncestor()).test(node))
+            formats.add(new DitaBeforeTextFormat(node, ctx, FormattingOrder.BEFORE_HEAD));
+            // Перед головой элемента вставляется дополнительный перенос строки и отступ если узел должен иметь отступ
+            // AnotherNewLineAndIndentBeforeHeadRule BEFORE_HEAD
+        else if ((isNotDocumentNode().and(isTypicalAsChild())).test(node))
+            formats.add(new AnotherNewLineAndIndentIfIndented(node, ctx, FormattingOrder.BEFORE_HEAD));
+
+        // Форматирование текста внутри блочного элемента ДИТА (связки между соседними элементами)
         // DitaBeforeNonBlockElementRule BEFORE_HEAD
         if (isNotOneLineComment().and(isNotComment()).and(isNotText())
                 .and(isNotDitaBlockElement()).and(hasDitaBlockAncestor()).test(node))
             formats.add(new DitaBeforeNonBlockElementFormat(node, ctx, FormattingOrder.BEFORE_HEAD));
 
-        // Форматирование текста внутри блочного элемента ДИТА (связки между соседними элементами)
-        // BeforeCbrTextRule BEFORE_HEAD
-        if (isText().and(hasDitaBlockAncestor()).test(node))
-            formats.add(new DitaBeforeTextFormat(node, ctx, FormattingOrder.BEFORE_HEAD));
-        else {
-            // Новая строка должна вставляться перед нетекстовым и непустым текстовым элементом
-            // NewLineBeforeHeadRule BEFORE_HEAD
-            if (isNotText().or(isNotEmptyText()).test(node))
-                formats.add(new NewLineIfContextDemands(node, ctx, FormattingOrder.BEFORE_HEAD));
-
-            // Перед головой элемента вставляется дополнительный перенос строки и отступ если узел должен иметь отступ
-            // AnotherNewLineAndIndentBeforeHeadRule BEFORE_HEAD
-            if ((isNotDocumentNode().and(isTypicalAsChild())).test(node))
-                formats.add(new AnotherNewLineAndIndentIfIndented(node, ctx, FormattingOrder.BEFORE_HEAD));
-        }
+        // Новая строка должна вставляться перед нетекстовым и непустым текстовым элементом
+        // NewLineBeforeHeadRule BEFORE_HEAD
+        if (isNotText().or(isNotEmptyText()).test(node))
+            formats.add(new NewLineIfContextDemands(node, ctx, FormattingOrder.BEFORE_HEAD));
 
         // Особое правило для головы элементов в контексте ДИТА (внутри блочного элемента ДИТА)
         // кроме комментариев, текста, не являющихся блочными элементами ДИТА
@@ -56,12 +54,10 @@ public class FormatSequence {
         if (isNotOneLineComment().and(isNotComment()).and(isNotText())
                 .and(isNotDitaBlockElement()).and(hasDitaBlockAncestor()).test(node))
             formats.add(new DitaContentsHeadFormat(node, ctx, FormattingOrder.HEAD));
-
             // Формат головы элемента
             // FormatElementHeadRule HEAD
         else if (node.isElement())
             formats.add(new FormatElementHead(node, ctx, FormattingOrder.HEAD));
-
 
         // Узлы CDATA форматируются по собственным правилам
         // FormatCdataRule 1
@@ -97,11 +93,12 @@ public class FormatSequence {
         else if (isText().test(node))
             formats.add(new FormatText(node, ctx, FormattingOrder.HEAD));
 
+        /* idle
         //  Формат после головы элемента ДИТА
         // DitaBlockElementAfterHeadRule AFTER_HEAD
         if (isDitaBlockElement().and(isNotSelfClosed()).test(node))
             formats.add(new DitaNewLineAndIndentAfterBlockElementHead(node, ctx, FormattingOrder.AFTER_HEAD));
-
+*/
         // Перед вложенными элементами увеличивается отступ
         // IndentElementChildrenRule BEFORE_CHILDREN
         if (node.isElement())
@@ -142,11 +139,10 @@ public class FormatSequence {
                     "' will be lost during formatting");
         }
 
-        StringBuilder sb = new StringBuilder();
-        formats.forEach(nodeFormat -> sb.append("\n").append(nodeFormat.getClass().getSimpleName()));
-
-        LogToFile.getInstance().info("\nFormatSequence for node " + node.getNodeName() +
-                ":" + sb + "\n");
+//        StringBuilder sb = new StringBuilder();
+//        formats.forEach(nodeFormat -> sb.append("\n").append(nodeFormat.getClass().getSimpleName()));
+//        LogToFile.getInstance().info("\nFormatSequence for node " + node.getNodeName() +
+//                ":" + sb + "\n");
         return this;
     }
 

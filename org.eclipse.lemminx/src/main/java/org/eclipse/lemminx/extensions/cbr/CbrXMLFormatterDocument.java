@@ -93,6 +93,7 @@ public class CbrXMLFormatterDocument {
 //        }
 
         MainFormat mainFormat = new MainFormat(context);
+        log.info("mainFormat.doFormatting()");
         mainFormat.doFormatting();
 
         List<? extends TextEdit> textEdits;
