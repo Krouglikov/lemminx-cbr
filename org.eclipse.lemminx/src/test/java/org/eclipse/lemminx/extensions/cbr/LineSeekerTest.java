@@ -1,5 +1,6 @@
 package org.eclipse.lemminx.extensions.cbr;
 
+import org.eclipse.lemminx.extensions.cbr.utils.LineSeeker;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;

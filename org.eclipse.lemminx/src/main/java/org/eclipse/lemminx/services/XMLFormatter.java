@@ -15,13 +15,12 @@ package org.eclipse.lemminx.services;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.*;
-import org.eclipse.lemminx.extensions.cbr.XmlFormatterService;
-import org.eclipse.lemminx.extensions.cbr.sputils.SpUtils;
+import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
-import org.eclipse.lemminx.utils.LogToFile;
+import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -32,6 +31,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument.isCbrFormatterEnabled;
 
 /**
  * XML formatter support.
@@ -808,11 +809,10 @@ class XMLFormatter {
      * @return List containing a TextEdit with formatting changes
      */
     public List<? extends TextEdit> format(TextDocument textDocument, Range range, SharedSettings sharedSettings) {
-        // ?????
-        log.info("XMLFormatter#format() is invoked");
+        LOGGER.log(Level.INFO, "XMLFormatter#format() is invoked");
         try {
-            if (XmlFormatterService.enabled()) {
-                return XmlFormatterService
+            if (isCbrFormatterEnabled()) {
+                return CbrXMLFormatterDocument
                         .format(textDocument, range, sharedSettings, getFormatterParticipants());
 //				XMLFormatterDocument formatterDocument = new XMLFormatterDocument(textDocument, range, sharedSettings,
 //						getFormatterParticipants());

@@ -1,35 +1,37 @@
 package org.eclipse.lemminx.extensions.cbr.format;
 
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
+public abstract class Format {
+    private FormattingOrder order;
+    protected DOMNode node;
+    protected Context ctx;
+    protected XMLBuilder xmlBuilder;
 
-/**
- * Формат. Процедура, выводящая заданный узел при помощи заданного исполнительного механизма.
- * Процедура может быть частичной (то есть формировать не весь вывод содержимого узла)
- */
-public interface Format extends BiConsumer<DOMNode, XMLBuilder> {
-
-    Format withContext(Object context);
-
-    Priority priority();
-
-    Stream<Class<? extends Format>> overrides();
-
-    enum Priority {
-
-        /**
-         * Основной формат
-         */
-        BASE,
-
-        /**
-         * Формат на замену основному
-         */
-        OVERRIDE
-
+    public Format(DOMNode node, Context ctx, FormattingOrder order) {
+        this.node = node;
+        this.ctx = ctx;
+        this.xmlBuilder = ctx.xmlBuilder;
+        this.order = order;
     }
 
+    public XMLBuilder getXmlBuilder() {
+        return xmlBuilder;
+    }
+
+    public void setXmlBuilder(XMLBuilder xmlBuilder) {
+        this.xmlBuilder = xmlBuilder;
+    }
+
+    public FormattingOrder getOrder() {
+        return order;
+    }
+
+    public void setOrder(FormattingOrder order) {
+        this.order = order;
+    }
+
+    abstract public void doFormatting();
 }
