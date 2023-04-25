@@ -2,9 +2,8 @@ package org.eclipse.lemminx.extensions.cbr;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.extensions.cbr.format.NodeFormatConfiguration;
-import org.eclipse.lemminx.extensions.cbr.format.execution.Context;
-import org.eclipse.lemminx.extensions.cbr.format.execution.MainFormat;
+import org.eclipse.lemminx.extensions.cbr.format.library.Context;
+import org.eclipse.lemminx.extensions.cbr.format.library.MainFormat;
 import org.eclipse.lemminx.extensions.cbr.utils.DitaValidator;
 import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
@@ -88,14 +87,12 @@ public class CbrXMLFormatterDocument {
         log.info("CbrXMLFormatterDocument#format() is invoked");
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
 
-        if (!DitaValidator.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
-            sendValidationFailedNotification();
-            return Collections.emptyList();
-        }
+//        if (!DitaValidator.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
+//            sendValidationFailedNotification();
+//            return Collections.emptyList();
+//        }
 
-        NodeFormatConfiguration nodeFormatConfiguration = new NodeFormatConfiguration();
-        nodeFormatConfiguration.setCtx(context);
-        MainFormat mainFormat = new MainFormat(nodeFormatConfiguration);
+        MainFormat mainFormat = new MainFormat(context);
         mainFormat.doFormatting();
 
         List<? extends TextEdit> textEdits;
