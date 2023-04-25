@@ -16,7 +16,6 @@ import static java.lang.System.lineSeparator;
 public class DitaContentsTailFormat extends Format {
     public DitaContentsTailFormat(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 
 //    @Override

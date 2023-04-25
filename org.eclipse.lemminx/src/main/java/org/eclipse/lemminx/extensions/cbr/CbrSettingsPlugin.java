@@ -9,7 +9,6 @@ import org.eclipse.lemminx.services.XMLLanguageService;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
-import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.eclipse.lsp4j.InitializeParams;
 
 import javax.annotation.Nonnull;
@@ -60,8 +59,6 @@ public class CbrSettingsPlugin implements IXMLExtension {
                         .map(JsonElement::getAsString).toArray(String[]::new)
         );
         overrideDitaBlockElementsFromSettingsJsonExtensionConfigurationFile(map);
-        LogToFile.getInstance().info("CBR settings have been loaded from settings.json");
-
     }
 
     /**

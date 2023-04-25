@@ -23,13 +23,12 @@ import java.util.logging.Logger;
 public class CbrXMLFormatterDocument {
 
     //region Fields and constants
-    private final static String FORMATTING_DISABLED_DUE_TO_ERRORS =
+    private final static String FORMATTING_DISABLED_BECAUSE_OF_ERRORS =
             "Форматирование не может быть выполнено - документ содержит ошибки";
 
     public static final int DEFAULT_MAX_LINE_LENGTH = 101;
 
     private static final Logger log = LogToFile.getInstance();
-    private static final Logger LOGGER = Logger.getLogger(CbrXMLFormatterDocument.class.getName());
     private static final CbrXMLFormatterDocument INSTANCE;
     private static int maxLineLength = DEFAULT_MAX_LINE_LENGTH;
 
@@ -87,14 +86,12 @@ public class CbrXMLFormatterDocument {
         log.info("CbrXMLFormatterDocument#format() is invoked");
         Context context = new Context(textDocument, range, sharedSettings, formatterParticipants);
 
-//        if (!DitaValidator.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
-//            sendValidationFailedNotification();
-//            return Collections.emptyList();
-//        }
+        if (!DitaValidator.checkXmlValidWithDtdBeforeFormatting(textDocument)) {
+            sendValidationFailedNotification();
+            return Collections.emptyList();
+        }
 
-        MainFormat mainFormat = new MainFormat(context);
-        log.info("mainFormat.doFormatting()");
-        mainFormat.doFormatting();
+        new MainFormat(context).doFormatting();
 
         List<? extends TextEdit> textEdits;
         try {
@@ -109,7 +106,7 @@ public class CbrXMLFormatterDocument {
         if (CbrXMLFormatterDocument.getXmlLanguageService() != null &&
                 CbrXMLFormatterDocument.getXmlLanguageService().getNotificationService() != null) {
             CbrXMLFormatterDocument.getXmlLanguageService().getNotificationService()
-                    .sendNotification(FORMATTING_DISABLED_DUE_TO_ERRORS, MessageType.Info);
+                    .sendNotification(FORMATTING_DISABLED_BECAUSE_OF_ERRORS, MessageType.Info);
         }
     }
 

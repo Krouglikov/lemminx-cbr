@@ -15,7 +15,6 @@ import static org.eclipse.lemminx.extensions.cbr.format.library.Predicates.isEmp
 public class DitaBeforeNonBlockElementFormat extends Format {
     public DitaBeforeNonBlockElementFormat(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 
 //    @Override

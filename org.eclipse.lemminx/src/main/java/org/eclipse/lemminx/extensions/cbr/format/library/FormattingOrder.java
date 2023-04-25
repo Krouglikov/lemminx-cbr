@@ -4,7 +4,6 @@ package org.eclipse.lemminx.extensions.cbr.format.library;
  * Последовательность этапов форматирования узла
  */
 public enum FormattingOrder {
-
     BEFORE_HEAD,
     HEAD,
     AFTER_HEAD,

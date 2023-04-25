@@ -5,24 +5,10 @@ import org.eclipse.lemminx.extensions.cbr.format.library.Context;
 import org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder;
 import org.eclipse.lemminx.utils.XMLBuilder;
 
-import java.util.stream.Stream;
-
 public abstract class Format {
-    protected enum Priority {
-        // Основной формат
-        BASE,
-        // Формат на замену основному
-        OVERRIDE
-    }
-
-    protected Priority priority;
     private FormattingOrder order = FormattingOrder.UNDEFINED;
-
     protected DOMNode node;
-
     protected Context ctx;
-
-
     protected XMLBuilder xmlBuilder;
 
     private Format() {
@@ -49,15 +35,6 @@ public abstract class Format {
 
     public void setOrder(FormattingOrder order) {
         this.order = order;
-    }
-
-
-    public Stream<Class<? extends Format>> overrides() {
-        return Stream.empty();
-    }
-
-    public Priority priority() {
-        return priority;
     }
 
     abstract public void doFormatting();

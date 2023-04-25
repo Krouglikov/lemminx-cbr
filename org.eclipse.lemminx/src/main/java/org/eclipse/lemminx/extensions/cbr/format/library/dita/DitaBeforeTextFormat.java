@@ -12,7 +12,6 @@ import static org.eclipse.lemminx.extensions.cbr.format.library.Predicates.isEmp
 public class DitaBeforeTextFormat extends Format {
     public DitaBeforeTextFormat(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 
 //    public DitaBeforeTextFormat() {

@@ -11,7 +11,6 @@ import org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder;
 public class DitaNewLineAndIndentBeforeBlockElementTail extends Format {
     public DitaNewLineAndIndentBeforeBlockElementTail(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 //    public DitaNewLineAndIndentBeforeBlockElementTail() {
 //        super(FormatElementBeforeTail.class);

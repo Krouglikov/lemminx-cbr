@@ -11,7 +11,6 @@ import org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder;
 public class DitaNewLineAndIndentAfterBlockElementHead extends Format {
     public DitaNewLineAndIndentAfterBlockElementHead(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 //    public DitaNewLineAndIndentAfterBlockElementHead() {
 //        super(/*AnotherNewLineAndIndentIfIndented.class*/);

@@ -16,7 +16,6 @@ import static java.lang.System.lineSeparator;
 public class DitaContentsHeadFormat extends Format {
     public DitaContentsHeadFormat(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 
 //    @Override

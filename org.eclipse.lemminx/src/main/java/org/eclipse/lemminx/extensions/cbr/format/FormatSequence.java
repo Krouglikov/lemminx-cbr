@@ -5,13 +5,10 @@ import org.eclipse.lemminx.extensions.cbr.format.library.Context;
 import org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder;
 import org.eclipse.lemminx.extensions.cbr.format.library.base.*;
 import org.eclipse.lemminx.extensions.cbr.format.library.dita.*;
-import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static org.eclipse.lemminx.extensions.cbr.format.library.Predicates.*;
 import static org.eclipse.lemminx.extensions.cbr.format.library.Predicates.hasDitaBlockAncestor;
@@ -145,15 +142,8 @@ public class FormatSequence {
                     "' will be lost during formatting");
         }
         overrideFormats();
-//        formats.forEach(Format::doFormatting);
-        formats.forEach(format -> {
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("\nCalling format " + format.getClass().getSimpleName() +
-//                    "\nxmlBuilder before\n" + ctx.xmlBuilder);
-            format.doFormatting();
-//            sb.append("\nxmlBuilder after\n" + ctx.xmlBuilder);
-//            LogToFile.getInstance().info(sb.toString());
-        });
+        formats.forEach(Format::doFormatting);
+
     }
 
     void overrideFormats() {
@@ -184,10 +174,9 @@ public class FormatSequence {
 
     @SafeVarargs
     final void override(Class<? extends Format> newFormat, Class<? extends Format>... list) {
-        List.copyOf(formats).stream().forEach(format -> {
+        List.copyOf(formats).forEach(format -> {
             if (format.getClass().equals(newFormat))
                 Arrays.stream(list).forEach(fmt -> formats.removeIf(f -> f.getClass().equals(fmt)));
         });
     }
-
 }

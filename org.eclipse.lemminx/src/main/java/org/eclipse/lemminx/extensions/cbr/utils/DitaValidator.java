@@ -14,11 +14,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class DitaValidator {
-    private static final Logger log = LogToFile.getInstance();
-    private static final Logger LOGGER = Logger.getLogger(DitaValidator.class.getName());
 
     /**
      * Provides validation of an XML document using DTD schema
@@ -27,8 +24,6 @@ public class DitaValidator {
      */
 
     public static boolean checkXmlValidWithDtdBeforeFormatting(TextDocument document) {
-        log.info("Starting validation");
-        LOGGER.info("Starting validation - logging to the Lemminx default logger");
         XMLLanguageService xmlLanguageService = CbrXMLFormatterDocument.getXmlLanguageService() != null ?
                 CbrXMLFormatterDocument.getXmlLanguageService() : new XMLLanguageService();
         XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
@@ -38,7 +33,6 @@ public class DitaValidator {
 
         DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(), document.getUri(), manager);
         xmlLanguageService.setDocumentProvider(uri -> xmlDocument);
-
         ContentModelSettings settings = new ContentModelSettings();
         settings.setUseCache(false);
         settings.setValidation(new XMLValidationSettings());
@@ -51,20 +45,7 @@ public class DitaValidator {
 
     private static boolean isNoSevereDiagnostics(List<Diagnostic> actual) {
         int[] severeMessagesCount = new int[1];
-        StringBuilder sb = new StringBuilder("\nDiagnostics:\n");
-        actual.forEach(d -> {
-                    sb.append(d.getSeverity().toString())
-                            .append(": ")
-                            .append(d.getMessage());
-                    severeMessagesCount[0] += d.getSeverity().equals(DiagnosticSeverity.Error) ? 1 : 0;
-                }
-        );
-        if (severeMessagesCount[0] == 0) {
-            log.info("\nValidation successful\n");
-            return true;
-        } else {
-            log.info(sb + "\nValidation failed because of severe diagnostics\n");
-            return false;
-        }
+        actual.forEach(d -> severeMessagesCount[0] += d.getSeverity().equals(DiagnosticSeverity.Error) ? 1 : 0);
+        return (severeMessagesCount[0] == 0);
     }
 }

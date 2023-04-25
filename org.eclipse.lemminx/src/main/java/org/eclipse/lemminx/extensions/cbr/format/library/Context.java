@@ -40,8 +40,7 @@ public class Context {
     // region additional
     public FormatSequence formatSequence;
 
-    // todo remove?
-    public XMLBuilder xmlBuilder; //todo remove
+    public XMLBuilder xmlBuilder;
 
     public int indentLevel;
 
@@ -169,8 +168,7 @@ public class Context {
         }
 
         // the starting indent level is the parent's indent level + 1
-        int startNodeIndentLevel = getNodeIndentLevel(startNodeParent) + 1;
-        return startNodeIndentLevel;
+        return getNodeIndentLevel(startNodeParent) + 1;
     }
 
     private boolean containsTextWithinStartTag() {

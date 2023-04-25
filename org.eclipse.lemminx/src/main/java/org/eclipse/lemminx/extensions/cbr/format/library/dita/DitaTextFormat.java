@@ -13,7 +13,6 @@ import org.eclipse.lemminx.utils.XMLBuilder;
 public class DitaTextFormat extends Format {
     public DitaTextFormat(DOMNode node, Context ctx, FormattingOrder order) {
         super(node, ctx, order);
-        priority = Priority.OVERRIDE;
     }
 
 //    public DitaTextFormat() {
