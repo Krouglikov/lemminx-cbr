@@ -16,8 +16,6 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import java.util.Collections;
 import java.util.List;
 
-import static org.eclipse.lemminx.extensions.cbr.utils.LogToFile.getFileLoggerInstance;
-
 public class DitaValidator {
 
     /**
@@ -41,7 +39,7 @@ public class DitaValidator {
         DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(), document.getUri(), manager);
         xmlLanguageService.setDocumentProvider(uri -> xmlDocument);
         ContentModelSettings settings = new ContentModelSettings();
-        settings.setUseCache(false);
+        settings.setUseCache(true);
         settings.setValidation(new XMLValidationSettings());
         settings.getValidation().setResolveExternalEntities(true); // The setting is important!
 
@@ -61,12 +59,17 @@ public class DitaValidator {
         List<Diagnostic> diagnostics = validateWithDiagnostics(document);
         for (Diagnostic d : diagnostics) {
             try {
-                if (
-                        (!nodeName.equals("#document") &&
-                                document.offsetAt(d.getRange().getStart()) == node.getStart() + 1)
-                                || nodeName.equals("#document")
-                                && (d.getMessage().contains("must match DOCTYPE root") || d.getMessage()
-                                .contains("markup in the document following the root element must be well-formed"))
+                if (d.getMessage().contains("is required and must be specified")
+                        || d.getMessage().contains("content of elements must consist of well-formed")
+                        || d.getMessage().contains("is incomplete, it must match"))
+                    continue;
+
+                if ((!nodeName.equals("#document") &&
+                        document.offsetAt(d.getRange().getStart()) == node.getStart() + 1)
+                        || nodeName.equals("#document")
+                        && (d.getMessage().contains("must match DOCTYPE root") || d.getMessage()
+                        .contains("markup in the document following the root element must be well-formed")
+                )
                 )
                     return false;
             } catch (Exception ignored) {

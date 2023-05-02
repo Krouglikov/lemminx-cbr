@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -58,13 +57,10 @@ public class XMLCompletionTest {
         CbrXMLFormatterDocument.setDtdCatalogs(new String[]{DTD_CATALOG});
 
         languageService = new XMLLanguageService();
-        customConfiguration = new Consumer<XMLLanguageService>() {
-            @Override
-            public void accept(XMLLanguageService xmlLanguageService) {
-                ContentModelManager contentModelManager = xmlLanguageService.getComponent(ContentModelManager.class);
-                if (contentModelManager != null)
-                    contentModelManager.setResolveExternalEntities(true);
-            }
+        customConfiguration = xmlLanguageService -> {
+            ContentModelManager contentModelManager = xmlLanguageService.getComponent(ContentModelManager.class);
+            if (contentModelManager != null)
+                contentModelManager.setResolveExternalEntities(true);
         };
     }
 
@@ -383,8 +379,7 @@ public class XMLCompletionTest {
         sharedSettings.getFormattingSettings().setTabSize(4);
         sharedSettings.getFormattingSettings().setInsertSpaces(false);
 
-        CompletionList completionList = languageService.doComplete(xmlDocument, position, sharedSettings);
-        return completionList;
+        return languageService.doComplete(xmlDocument, position, sharedSettings);
     }
 
     // TextEdits are created with the "<" symbol already existing and offset set to

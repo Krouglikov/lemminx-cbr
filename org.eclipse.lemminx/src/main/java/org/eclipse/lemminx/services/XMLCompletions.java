@@ -14,7 +14,6 @@ package org.eclipse.lemminx.services;
 
 import static java.lang.Character.isWhitespace;
 import static org.eclipse.lemminx.extensions.cbr.utils.DitaValidator.*;
-import static org.eclipse.lemminx.extensions.cbr.utils.LogToFile.getFileLoggerInstance;
 
 import java.util.*;
 import java.util.concurrent.CancellationException;
@@ -64,7 +63,7 @@ public class XMLCompletions {
     public CompletionList doComplete(DOMDocument xmlDocument, Position position, SharedSettings settings,
                                      CancelChecker cancelChecker) {
         CompletionResponse completionResponse = new CompletionResponse();
-        CompletionRequest completionRequest = null;
+        CompletionRequest completionRequest;
         try {
             completionRequest = new CompletionRequest(xmlDocument, position, settings, extensionsRegistry);
         } catch (BadLocationException e) {
@@ -76,7 +75,7 @@ public class XMLCompletions {
         int offset = completionRequest.getOffset();
         DOMNode node = completionRequest.getNode();
 
-        TokenType token = null;
+        TokenType token;
         int scannedOffset = 0;
 
         try {
@@ -271,58 +270,35 @@ public class XMLCompletions {
 
 
             for (CompletionItem item : new ArrayList<>(completionResponse.getItems())) {
-                String sKind;
-                if (item.getKind() == null) {
-                    item.setKind(CompletionItemKind.Snippet);
-                    sKind = item.getKind().name() + " (There was no information)";
-                } else
-                    sKind = item.getKind().name();
-
-
                 DOMDocument documentCopy =
                         new DOMDocument(xmlDocument.getTextDocument(), xmlDocument.getResolverExtensionManager());
-
-
-                int pos = 0;
-                try {
-                    pos = documentCopy.getTextDocument().offsetAt(position);
-                } catch (Exception ignored) {
-                }
 
                 if (scannedOffset > 0 && documentCopy.getTextDocument().getText().charAt(scannedOffset - 1) == '<')
                     scannedOffset = scannedOffset - 1;
 
-//                String toInsert = item.getTextEdit().getLeft().getNewText();
-                String toInsert = "<" + item.getLabel()+"></"+item.getLabel()+">";
+                try {
+                    String newDocument = documentCopy.getTextDocument().getText().substring(0, scannedOffset) +
+                            "<" + item.getLabel() + "></" + item.getLabel() + ">" + documentCopy.getTextDocument()
+                            .getText().substring(documentCopy.getTextDocument().offsetAt(position));
 
-                String newDocument =
-                        documentCopy.getTextDocument().getText().substring(0, scannedOffset) +
-                                toInsert +
-//                                "[" + item.getLabel() + "]" +
-                                documentCopy.getTextDocument().getText().substring(pos);
+//                    List<Diagnostic> diagnostics = validateWithDiagnostics(new TextDocument(newDocument, ""));
+//                    String diagnosticsString = "";
+//                    for (Diagnostic d : diagnostics) diagnosticsString = diagnosticsString + d.getMessage() + "\n";
+//                    getFileLoggerInstance().info("What to insert: [" + "<" + item.getLabel() + "></" + item.getLabel() + ">" +
+//                            "]\n\n" + newDocument + "\n" + diagnosticsString);
 
-
-                List<Diagnostic> diagnostics = validateWithDiagnostics(new TextDocument(newDocument, ""));
-                String diagnosticsString = "";
-                for (Diagnostic d : diagnostics)
-                    diagnosticsString = diagnosticsString + d.getMessage() + "\n";
-                boolean isValid = isNoErrorsForNode(node.getParentNode(), new TextDocument(newDocument, ""));
-
-                getFileLoggerInstance().info("What to insert: [" + toInsert + "]\n\n" + newDocument + "\n" + isValid + "\n" + diagnosticsString);
-
-                if (!isValid)
-                    completionResponse.getItems().remove(item);
+                    if (!isNoErrorsForNode(node.getParentNode(), new TextDocument(newDocument, "")))
+                        completionResponse.getItems().remove(item);
+                } catch (Exception ignored) {
+                }
             }
 
-            StringBuilder sb = new StringBuilder();
-            for (CompletionItem item : completionResponse.getItems()) {
-                sb.append("\n").append(item.getLabel()).append(" (").append(item.getKind()).append(")");
-            }
-
-            getFileLoggerInstance().info("XMLCompletions finished for node " + node.getParentNode().getNodeName() +
-                    " with Completion Items" + "\n" + sb.toString());
-
-
+//            StringBuilder sb = new StringBuilder();
+//            for (CompletionItem item : completionResponse.getItems()) {
+//                sb.append("\n").append(item.getLabel()).append(" (").append(item.getKind()).append(")");
+//            }
+//            getFileLoggerInstance().info("XMLCompletions finished for node " + node.getParentNode().getNodeName() +
+//                    " with Completion Items" + "\n" + sb);
         }
     }
 
@@ -673,9 +649,6 @@ public class XMLCompletions {
         completionRequest.setHasOpenBracket(hasOpenBracket);
         completionRequest.setReplaceRange(replaceRange);
 
-        int lastSize = 0;
-        StringBuilder sb = new StringBuilder();
-
         for (ICompletionParticipant participant : getCompletionParticipants()) {
             try {
                 participant.onTagOpen(completionRequest, completionResponse, cancelChecker);
@@ -685,18 +658,7 @@ public class XMLCompletions {
                 LOGGER.log(Level.SEVERE, "While performing ICompletionParticipant#onTagOpen for participant '"
                         + participant.getClass().getName() + "'.", e);
             }
-            if (lastSize != completionResponse.getItems().size()) {
-                int count = 0;
-                for (CompletionItem item : completionResponse.getItems()) {
-                    count++;
-                }
-                lastSize = completionResponse.getItems().size();
-            }
-            if (!participant.getClass().getSimpleName().equals("null"))
-                sb.append("\n                                ")
-                        .append(participant.getClass().getSimpleName());
         }
-        getFileLoggerInstance().info("List of ICompletionParticipants: \n" + sb + "\n");
 
         DOMElement parentNode = completionRequest.getParentElement();
         if (parentNode != null && !parentNode.getOwnerDocument().hasGrammar()) {

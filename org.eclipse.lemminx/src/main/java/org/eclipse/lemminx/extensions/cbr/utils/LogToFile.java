@@ -7,7 +7,6 @@ import java.util.logging.SimpleFormatter;
 public final class LogToFile {
     public static final String GAP = "\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
-    public static int debuggingMode;
     private static final String LOG_PATH = "c:\\Java\\Logs\\";
     private static java.util.logging.Logger instance;
 

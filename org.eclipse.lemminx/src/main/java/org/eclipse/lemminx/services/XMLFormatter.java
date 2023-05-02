@@ -20,7 +20,6 @@ import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.format.IFormatterParticipant;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions.EmptyElements;
-import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.eclipse.lemminx.utils.XMLBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -39,7 +38,6 @@ import static org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument.isCbrFo
  */
 class XMLFormatter {
     private static final Logger LOGGER = Logger.getLogger(XMLFormatter.class.getName());
-    private Logger log = LogToFile.getInstance();
 
     private static class XMLFormatterDocument {
         private final TextDocument textDocument;

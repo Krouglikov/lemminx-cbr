@@ -1,23 +1,13 @@
 package org.eclipse.lemminx.extensions.cbr;
 
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DOMParser;
-import org.eclipse.lemminx.extensions.contentmodel.uriresolver.XMLCatalogResolverExtension;
-import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.extensions.cbr.utils.LogToFile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -27,7 +17,6 @@ import static org.eclipse.lemminx.XMLAssert.assertFormat;
 
 @Disabled
 class CbrXMLFormatterDocumentTest {
-    private final Logger log = LogToFile.getFileLoggerInstance();
 
     private final static int MAX_TEXT_LENGTH = 60;
 
@@ -39,31 +28,6 @@ class CbrXMLFormatterDocumentTest {
         CbrXMLFormatterDocument.setMaxLineLength(MAX_TEXT_LENGTH);
         CbrXMLFormatterDocument.setDtdCatalogs(new String[]{"c:\\Users\\pafol\\.vscode\\extensions\\rcr-ekb.dita-vs-code-1.10.1\\schema\\v1.3\\catalog_dtd.xml"});
     }
-
-    @Test
-    public void testParseDTD() throws BadLocationException, IOException {
-//        Path path = XmlFormatterService.getDtdCatalogs().get(0);
-        Path path = Paths.get("C:\\Users\\pafol\\.vscode\\extensions\\rcr-ekb.dita-vs-code-1.10.1\\schema\\v1.3\\bookmap\\dtd\\bookmap.dtd");
-        String string = new String(Files.readAllBytes(path));
-
-        URIResolverExtensionManager manager = new URIResolverExtensionManager();
-        XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
-        catalogResolverExtension.setCatalogs(CbrXMLFormatterDocument.getDtdCatalogs());
-        manager.registerResolver(catalogResolverExtension);
-
-        TextDocument document = new TextDocument(string, "bookmap.dtd");
-        DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(),
-                document.getUri(), manager);
-
-        log.info("isDTD = " + xmlDocument.isDTD());
-        log.info("xmlDocument.isGenericDTDDecl()" + xmlDocument.isGenericDTDDecl());
-
-        List<DOMNode> children = xmlDocument.getChildren().get(0).getChildren();
-        children.forEach(child -> log.info("\nchild : " + child.getNodeName() +
-                " : " + child.getNodeValue()));
-
-    }
-
 
     @Test
     public void testFormatLongString() throws BadLocationException {
@@ -303,15 +267,18 @@ class CbrXMLFormatterDocumentTest {
 
     private String readFile(String name) {
         URL file = ClassLoader.getSystemClassLoader().getResource(name);
-        try (InputStream inputStream = file.openStream();
-             Scanner scanner = new Scanner(inputStream)
-        ) {
-            List<String> lines = new LinkedList<>();
-            while (scanner.hasNextLine()) {
-                lines.add(scanner.nextLine());
+        try {
+            assert file != null;
+            try (InputStream inputStream = file.openStream();
+                     Scanner scanner = new Scanner(inputStream)
+            ) {
+                List<String> lines = new LinkedList<>();
+                while (scanner.hasNextLine()) {
+                    lines.add(scanner.nextLine());
+                }
+                return String.join("\r\n", lines);
             }
-            return String.join("\r\n", lines);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return "";
     }
