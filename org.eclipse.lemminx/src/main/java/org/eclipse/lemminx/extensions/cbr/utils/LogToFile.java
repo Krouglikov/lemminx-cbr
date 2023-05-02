@@ -14,21 +14,21 @@ public final class LogToFile {
     private LogToFile() {
     }
 
-    public static synchronized java.util.logging.Logger getInstance() {
+    public static java.util.logging.Logger getFileLoggerInstance() {
         if (instance == null) {
             instance = java.util.logging.Logger.getLogger(LogToFile.class.getName());
             instance.info(GAP + "Logger: The instance is assigned");
-        }
-        FileHandler fh = null;
-        try {
-            fh = new FileHandler(LOG_PATH + "dita-lemminx-cbr-log.txt", false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert fh != null;
-        fh.setFormatter(new SimpleFormatter());
-        instance.addHandler(fh);
+            FileHandler fh = null;
+            try {
+                fh = new FileHandler(LOG_PATH + "dita-lemminx-cbr-log.txt", false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            assert fh != null;
+            fh.setFormatter(new SimpleFormatter());
+            instance.addHandler(fh);
 //        instance.setUseParentHandlers(false);
+        }
         return instance;
     }
 }

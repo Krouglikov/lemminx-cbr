@@ -27,7 +27,7 @@ import static org.eclipse.lemminx.XMLAssert.assertFormat;
 
 @Disabled
 class CbrXMLFormatterDocumentTest {
-    private final Logger log = LogToFile.getInstance();
+    private final Logger log = LogToFile.getFileLoggerInstance();
 
     private final static int MAX_TEXT_LENGTH = 60;
 

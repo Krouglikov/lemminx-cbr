@@ -2,6 +2,7 @@ package org.eclipse.lemminx.extensions.cbr.utils;
 
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.cbr.CbrXMLFormatterDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -15,15 +16,21 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import java.util.Collections;
 import java.util.List;
 
+import static org.eclipse.lemminx.extensions.cbr.utils.LogToFile.getFileLoggerInstance;
+
 public class DitaValidator {
 
     /**
-     * Provides validation of an XML document using DTD schema
+     * Provides validation of an XML document using schema
      *
      * @param document XML document to be validated
      */
 
     public static boolean checkXmlValidWithDtdBeforeFormatting(TextDocument document) {
+        return isNoSevereDiagnostics(validateWithDiagnostics(document));
+    }
+
+    public static List<Diagnostic> validateWithDiagnostics(TextDocument document) {
         XMLLanguageService xmlLanguageService = CbrXMLFormatterDocument.getXmlLanguageService() != null ?
                 CbrXMLFormatterDocument.getXmlLanguageService() : new XMLLanguageService();
         XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
@@ -38,14 +45,33 @@ public class DitaValidator {
         settings.setValidation(new XMLValidationSettings());
         settings.getValidation().setResolveExternalEntities(true); // The setting is important!
 
-        return isNoSevereDiagnostics(xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
+        return xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
                 Collections.emptyMap(), () -> {
-                }));
+                });
     }
 
     private static boolean isNoSevereDiagnostics(List<Diagnostic> actual) {
         int[] severeMessagesCount = new int[1];
         actual.forEach(d -> severeMessagesCount[0] += d.getSeverity().equals(DiagnosticSeverity.Error) ? 1 : 0);
         return (severeMessagesCount[0] == 0);
+    }
+
+    public static boolean isNoErrorsForNode(DOMNode node, TextDocument document) {
+        String nodeName = node.getNodeName();
+        List<Diagnostic> diagnostics = validateWithDiagnostics(document);
+        for (Diagnostic d : diagnostics) {
+            try {
+                if (
+                        (!nodeName.equals("#document") &&
+                                document.offsetAt(d.getRange().getStart()) == node.getStart() + 1)
+                                || nodeName.equals("#document")
+                                && (d.getMessage().contains("must match DOCTYPE root") || d.getMessage()
+                                .contains("markup in the document following the root element must be well-formed"))
+                )
+                    return false;
+            } catch (Exception ignored) {
+            }
+        }
+        return true;
     }
 }

@@ -14,7 +14,6 @@ public class NewLineIfContextDemands extends Format {
     @Override
     public void doFormatting() {
         if (ctx.linefeedOnNextWrite) {
-            LogToFile.getInstance().info("NewLineIfContextDemands");
             xmlBuilder.linefeed();
             ctx.linefeedOnNextWrite = false;
         }
