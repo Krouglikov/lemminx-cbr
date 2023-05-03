@@ -266,10 +266,24 @@ public class XMLCompletions {
             }
             return completionResponse;
         } finally {
-            collectSnippetSuggestions(completionRequest, completionResponse);
+            String documentString = "";
+            if (node.getParentNode() != null && node.getParentNode().getNodeName().equals("#document")) {
+                DOMDocument document = (DOMDocument) node.getParentNode();
+                documentString = document.getText();
+            }
+            final String s = documentString;
+            completionResponse.getItems().removeIf(item ->
+                    !(item.getLabel().startsWith("dita ") && node.getParentNode().getNodeName().equals("#document"))
+                            &&
+                            (item.getLabel().contains(":") ||
+                                    (node.getParentNode().getNodeName().equals("#document") && !s.contains(item.getLabel())))
+            );
 
+            StringBuilder sb = new StringBuilder();
 
             for (CompletionItem item : new ArrayList<>(completionResponse.getItems())) {
+//                long startTime = System.nanoTime();
+
                 DOMDocument documentCopy =
                         new DOMDocument(xmlDocument.getTextDocument(), xmlDocument.getResolverExtensionManager());
 
@@ -289,16 +303,17 @@ public class XMLCompletions {
 
                     if (!isNoErrorsForNode(node.getParentNode(), new TextDocument(newDocument, "")))
                         completionResponse.getItems().remove(item);
+
+//                    sb.append("\n").append((System.nanoTime() - startTime) / 1000000)
+//                            .append(" ").append(item.getLabel()).append(" (").append(item.getKind()).append(")");
                 } catch (Exception ignored) {
                 }
             }
 
-//            StringBuilder sb = new StringBuilder();
-//            for (CompletionItem item : completionResponse.getItems()) {
-//                sb.append("\n").append(item.getLabel()).append(" (").append(item.getKind()).append(")");
-//            }
 //            getFileLoggerInstance().info("XMLCompletions finished for node " + node.getParentNode().getNodeName() +
 //                    " with Completion Items" + "\n" + sb);
+
+            collectSnippetSuggestions(completionRequest, completionResponse);
         }
     }
 

@@ -68,9 +68,7 @@ public class XMLCompletionTest {
     public void ditaTest() throws BadLocationException {
         testCompletionFor(languageService,
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<!DOCTYPE map PUBLIC \"-//OASIS//DTD DITA Map//EN\" \"map.dtd\">\n" +
-                        "<map id=\"VDP\" xml:lang=\"ru\">\n" +
-                        " <title>xxx</title> <titl|</map>",
+                        "<!DOCTYPE map PUBLIC \"-//OASIS//DTD DITA Map//EN\" \"map.dtd\"><|",
                 DTD_CATALOG,
                 customConfiguration,
                 "test.xml",

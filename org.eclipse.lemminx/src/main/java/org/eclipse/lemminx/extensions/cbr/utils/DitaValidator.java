@@ -17,6 +17,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class DitaValidator {
+    private static XMLLanguageService xmlLanguageService;
+    private static URIResolverExtensionManager manager;
+
+    public static void initialize() {
+        xmlLanguageService = CbrXMLFormatterDocument.getXmlLanguageService() != null ?
+                CbrXMLFormatterDocument.getXmlLanguageService() : new XMLLanguageService();
+        XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
+        catalogResolverExtension.setCatalogs(CbrXMLFormatterDocument.getDtdCatalogs());
+        manager = new URIResolverExtensionManager();
+        manager.registerResolver(catalogResolverExtension);
+    }
 
     /**
      * Provides validation of an XML document using schema
@@ -29,13 +40,8 @@ public class DitaValidator {
     }
 
     public static List<Diagnostic> validateWithDiagnostics(TextDocument document) {
-        XMLLanguageService xmlLanguageService = CbrXMLFormatterDocument.getXmlLanguageService() != null ?
-                CbrXMLFormatterDocument.getXmlLanguageService() : new XMLLanguageService();
-        XMLCatalogResolverExtension catalogResolverExtension = new XMLCatalogResolverExtension();
-        catalogResolverExtension.setCatalogs(CbrXMLFormatterDocument.getDtdCatalogs());
-        URIResolverExtensionManager manager = new URIResolverExtensionManager();
-        manager.registerResolver(catalogResolverExtension);
-
+        if (xmlLanguageService == null)
+            initialize();
         DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(), document.getUri(), manager);
         xmlLanguageService.setDocumentProvider(uri -> xmlDocument);
         ContentModelSettings settings = new ContentModelSettings();
