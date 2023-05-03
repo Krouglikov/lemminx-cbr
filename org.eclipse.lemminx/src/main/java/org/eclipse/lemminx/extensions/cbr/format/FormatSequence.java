@@ -8,6 +8,7 @@ import org.eclipse.lemminx.extensions.cbr.format.library.dita.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.eclipse.lemminx.extensions.cbr.format.library.FormattingOrder.*;
 import static org.eclipse.lemminx.extensions.cbr.format.library.Predicates.*;
@@ -154,7 +155,7 @@ public class FormatSequence {
 
     @SafeVarargs
     final void override(Class<? extends Format> newFormat, Class<? extends Format>... list) {
-        List.copyOf(formats).forEach(format -> {
+        new ArrayList<>(formats).forEach(format -> {
             if (format.getClass().equals(newFormat))
                 Arrays.stream(list).forEach(fmt -> formats.removeIf(f -> f.getClass().equals(fmt)));
         });
