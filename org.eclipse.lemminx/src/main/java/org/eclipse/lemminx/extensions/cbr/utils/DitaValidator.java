@@ -19,6 +19,8 @@ import java.util.List;
 public class DitaValidator {
     private static XMLLanguageService xmlLanguageService;
     private static URIResolverExtensionManager manager;
+    private static ContentModelSettings settings;
+
 
     public static void initialize() {
         xmlLanguageService = CbrXMLFormatterDocument.getXmlLanguageService() != null ?
@@ -27,6 +29,10 @@ public class DitaValidator {
         catalogResolverExtension.setCatalogs(CbrXMLFormatterDocument.getDtdCatalogs());
         manager = new URIResolverExtensionManager();
         manager.registerResolver(catalogResolverExtension);
+        settings = new ContentModelSettings();
+        settings.setUseCache(true);
+        settings.setValidation(new XMLValidationSettings());
+        settings.getValidation().setResolveExternalEntities(true); // The setting is important!
     }
 
     /**
@@ -44,10 +50,7 @@ public class DitaValidator {
             initialize();
         DOMDocument xmlDocument = DOMParser.getInstance().parse(document.getText(), document.getUri(), manager);
         xmlLanguageService.setDocumentProvider(uri -> xmlDocument);
-        ContentModelSettings settings = new ContentModelSettings();
-        settings.setUseCache(true);
-        settings.setValidation(new XMLValidationSettings());
-        settings.getValidation().setResolveExternalEntities(true); // The setting is important!
+
 
         return xmlLanguageService.doDiagnostics(xmlDocument, settings.getValidation(),
                 Collections.emptyMap(), () -> {
